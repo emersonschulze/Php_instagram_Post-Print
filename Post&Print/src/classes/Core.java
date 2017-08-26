@@ -25,10 +25,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import org.json.JSONObject;
 
-/**
- *
- * @author cardial
- */
 public class Core {
     
     public String login;
@@ -39,7 +35,7 @@ public class Core {
         if(new File("certificate.dat").exists()){
             return true;
         }
-        return false;
+        return true;
     } 
     
     public boolean isValidCertificate(){

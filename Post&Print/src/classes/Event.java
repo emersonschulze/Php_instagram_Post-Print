@@ -7,10 +7,6 @@ package classes;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-/**
- *
- * @author cardial
- */
 public class Event {
  
     private String id_event;
@@ -24,14 +20,11 @@ public class Event {
     private String id_print_template;
     private String active;
     private String qtde_fotos;
-    
     private Webservice ws;
-    
     
     public Event(){
         ws = new Webservice();
     }
-    
     
     public String toParams(){
         String params = "name="+this.getName()+"&dt_event="+this.getDt_event()+"&hashtag="+this.getHashtag()+"&automatic="+this.getAutomatic()+"&have_screen="+this.getHave_screen()+"&have_print="+this.getHave_print()+"&id_print_template="+this.getId_print_template()+"&active="+this.getActive()+"&logo_event="+this.getLogo_event()+"&qtde_fotos="+this.getQtde_fotos();
@@ -96,16 +89,10 @@ public class Event {
         return false;
     }
     
-    /**
-     * @return the id_event
-     */
-    public String getId_event() {
+        public String getId_event() {
         return id_event;
     }
 
-    /**
-     * @param id_event the id_event to set
-     */
     public void setId_event(String id_event) {
         this.id_event = id_event;
     }

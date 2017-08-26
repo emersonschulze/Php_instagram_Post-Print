@@ -21,10 +21,6 @@ import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
 import javax.print.SimpleDoc;
 
-/**
- *
- * @author cardial
- */
 public class Instagram {
     
     public static ArrayList<Photo> fotosInstagram;

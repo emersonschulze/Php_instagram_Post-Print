@@ -10,16 +10,10 @@ import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.awt.print.Printable;
 import java.io.File;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
-/**
- *
- * @author cardial
- */
 public class PrintObject implements Printable  
 {  
     

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package classes;
 
 import java.io.BufferedInputStream;
@@ -14,18 +10,16 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
-/**
- *
- * @author cardial
- */
 public class Webservice {
     private static final int TAM_MAX_BUFFER = 10240; // 10Kbytes
     
-    private String urlTags = "https://api.instagram.com/v1/tags/[myTag]/media/recent?client_id=085a4a8f4d4746fca32b77f437659ddf";
-    private String urlPhoto = "https://api.instagram.com/v1/media/[IDPhoto]?client_id=085a4a8f4d4746fca32b77f437659ddf";
-    public String urlWSEvent = "http://postprint.lin3.com.br/WSPhotoParty/Event/[method]?format=json";
+    private final String urlTags = "https://api.instagram.com/v1/tags/[myTag]?access_token=270817430.6c61e68.80a6f0177a744248a581147fe03e08ce";
+    private final String urlPhoto = "https://api.instagram.com/v1/media/[IDPhoto]?access_token=270817430.6c61e68.80a6f0177a744248a581147fe03e08ce";
+    private final String user = "https://api.instagram.com/oauth/authorize/?client_id=6c61e681117e45baa6ea51667ce36d32&redirect_uri=https://postprint.com.br/&response_type=code";
+    public String urlWSEvent = "https://postprint.com.br/WSPhotoParty/Event/[method]?format=json";
     private HttpURLConnection urlConnection;
     
     public String msgError = "";
@@ -98,16 +92,16 @@ public class Webservice {
     	return lista;
     }
     
-    public boolean existHashTag(String tag){
+     public boolean existHashTag(String tag){
     	String response = this.request(urlTags.replace("[myTag]", tag) , "","GET");
     	if(!response.trim().equals("")){
             try{
                 JSONArray jsonArray = new JSONArray("["+response+"]");
-                JSONArray data = jsonArray.getJSONObject(0).getJSONArray("data");
-                if(data.length() > 0){
+                Object media = jsonArray.optJSONObject(0).optJSONObject("data").get("media_count");
+                if(!media.equals(0)){
                     return true;
                 }
-            }catch(Exception e){
+            }catch(JSONException e){
                 System.out.println("Erro WS: "+e.getMessage());
             }
     	}else{

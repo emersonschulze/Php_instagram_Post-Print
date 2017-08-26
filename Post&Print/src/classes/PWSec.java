@@ -4,20 +4,12 @@
  */
 package classes;
 
-import java.io.FileInputStream;  
-import java.io.FileOutputStream;  
-import java.io.IOException;  
-import java.io.ObjectInputStream;  
-import java.io.ObjectOutputStream;  
-import javax.crypto.*;  
-import javax.crypto.spec.*;  
-import java.security.*;  
-import java.security.spec.*;  
-import java.security.InvalidKeyException;  
-import java.security.NoSuchAlgorithmException;  
-import java.security.spec.KeySpec;  
-import sun.misc.BASE64Encoder; // para simplificar o exemplo. Use alguma outra classe para converter  
-import sun.misc.BASE64Decoder; // para Base-64.  
+import java.security.*;
+import java.security.spec.KeySpec;
+import javax.crypto.*;
+import javax.crypto.spec.*;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;  
 public final class PWSec {  
     private static SecretKey skey;  
     private static KeySpec ks;  

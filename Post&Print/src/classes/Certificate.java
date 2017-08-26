@@ -6,10 +6,6 @@ package classes;
 
 import java.io.Serializable;
 
-/**
- *
- * @author cardial
- */
 public class Certificate implements Serializable {
     
     public String login;

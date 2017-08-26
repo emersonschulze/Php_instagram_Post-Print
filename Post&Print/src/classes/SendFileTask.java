@@ -14,13 +14,7 @@ import javax.microedition.io.Connector;
 import javax.obex.ClientSession;
 import javax.obex.HeaderSet;
 import javax.obex.Operation;
-import javax.swing.JOptionPane;
-import org.imgscalr.Scalr;
 
-/**
- *
- * @author Tommi Laukkanen (tlaukkanen at gmail dot com)
- */
 public class SendFileTask implements Runnable {
  
     private String btConnectionURL;

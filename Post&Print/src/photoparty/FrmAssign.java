@@ -1,24 +1,13 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package photoparty;
 
 import classes.Core;
 import javax.swing.JOptionPane;
 
-/**
- *
- * @author cardial
- */
 public class FrmAssign extends javax.swing.JFrame{
 
     private Core core;
     public int step = 1;
     
-    /**
-     * Creates new form FrmAssign
-     */
     public FrmAssign() {
         initComponents();
         
@@ -59,6 +48,12 @@ public class FrmAssign extends javax.swing.JFrame{
         jLabel1.setText("Login:");
 
         jLabel2.setText("Senha:");
+
+        txtLogin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtLoginActionPerformed(evt);
+            }
+        });
 
         jLabel3.setText("<html>Informe o login e senha para validar o software</html>");
 
@@ -244,6 +239,10 @@ public class FrmAssign extends javax.swing.JFrame{
         }
         
     }//GEN-LAST:event_formWindowOpened
+
+    private void txtLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtLoginActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtLoginActionPerformed
 
     /**
      * @param args the command line arguments

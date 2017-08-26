@@ -10,10 +10,6 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.table.DefaultTableModel;
 
-/**
- *
- * @author Renato
- */
 public class MyDefaultTableModel extends DefaultTableModel {
     
     List<Color> rowColours = Arrays.asList(

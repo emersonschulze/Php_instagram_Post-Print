@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package classes;
 
 import java.io.File;
@@ -10,10 +6,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-/**
- *
- * @author Renato
- */
 public class ErrorProgram {
     
     public ErrorProgram(){
