@@ -575,7 +575,6 @@ public class FrmEvent extends javax.swing.JDialog {
         {
             JOptionPane.showMessageDialog(null, "OK! hashtag disponível");
         }
-            
     }//GEN-LAST:event_btnDisponibilidadeActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
