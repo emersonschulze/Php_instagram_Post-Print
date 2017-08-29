@@ -18,14 +18,14 @@ import org.imgscalr.Scalr;
 
 public class FrmTelao extends javax.swing.JFrame {
 
-    private ArrayList<Photo> listaPhotos;
-    private Webservice ws;
+    private final ArrayList<Photo> listaPhotos;
+    private final Webservice ws;
 
     public String hashtag = "";
     public String dirFotosTelao = "";
     public String pathLogoEvento = "";
     public Timer timerPhotos;
-    private boolean iniciou = false;
+    private final boolean iniciou = false;
     private int current_image = 0;
 
     public FrmTelao() {
@@ -207,8 +207,8 @@ public class FrmTelao extends javax.swing.JFrame {
     }
 
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
-        
-    
+
+
     }//GEN-LAST:event_formWindowClosed
 
     public void initTimer() {

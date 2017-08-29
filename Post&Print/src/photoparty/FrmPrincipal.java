@@ -98,7 +98,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         evento = new Event();
         listaFotosEnviadas = new ArrayList<String>();
         modelListaImpressoras = new DefaultListModel();
-        
+
         File dirEnviadas = new File(dirFotosEnviadas);
         if (dirEnviadas.exists() == false) {
             dirEnviadas.mkdir();
@@ -152,7 +152,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 }
             }
         });
-      
+
         String[] colunas2 = new String[]{"Foto", "Nome", "Status"};
         modelTblImpressas = new MyDefaultTableModel(null, colunas2);
 
@@ -160,16 +160,16 @@ public class FrmPrincipal extends javax.swing.JFrame {
         tblFotosImpressas.getColumnModel().getColumn(0).setPreferredWidth(80);
         tblFotosImpressas.getColumnModel().getColumn(1).setPreferredWidth(300);
         tblFotosImpressas.getColumnModel().getColumn(2).setPreferredWidth(100);
-       
+
         tblFotosImpressas.addMouseListener(new MouseAdapter() {
-            
+
             @Override
             public void mouseClicked(MouseEvent e) {
 
                 if (e.getClickCount() == 2) {
                     int row = tblFotosImpressas.getSelectedRow();
                     e.consume();
-                  
+
                     if (tblFotosImpressas.getValueAt(row, 2).toString().equals("NO TELÃO") == false) {
                         if (tblFotosImpressas.getValueAt(row, 2).toString().equals("ERRO") == true && btnStartPrint.isEnabled() == false) {
                             JOptionPane.showMessageDialog(null, "Pare o processo para realizar esta ação!");
@@ -242,7 +242,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
             }
 
         } catch (Exception e) {
-          JOptionPane.showMessageDialog(null, "Problema ao exibir foto no telão error: "+ e.getMessage());
+            JOptionPane.showMessageDialog(null, "Problema ao exibir foto no telão error: " + e.getMessage());
         }
     }
 
@@ -260,7 +260,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
             if (dir.isDirectory()) {
                 File arquivos[] = dir.listFiles();
                 Arrays.sort(arquivos, new Comparator() {
-                    
+
                     @Override
                     public int compare(Object o1, Object o2) {
                         if (((File) o1).lastModified() > ((File) o2).lastModified()) {
@@ -292,17 +292,17 @@ public class FrmPrincipal extends javax.swing.JFrame {
                     }
                 }
             }
-        lblQtdeFotos.setText("Fotos Impressas: " + String.valueOf(qtdeImpressas) + " / " + totFotos);
+            lblQtdeFotos.setText("Fotos Impressas: " + String.valueOf(qtdeImpressas) + " / " + totFotos);
 
         } catch (Exception e) {
-          JOptionPane.showMessageDialog(null, "Problema ao exibir fotos impressas. Error: "+ e.getMessage());
+            JOptionPane.showMessageDialog(null, "Problema ao exibir fotos impressas. Error: " + e.getMessage());
         }
 
     }
 
     private void loadNaFila() {
         try {
-           String outputDirectory = dirFotosFila + hashtag + "/";
+            String outputDirectory = dirFotosFila + hashtag + "/";
 
             File dirImpressas = new File(outputDirectory);
             if (dirImpressas.exists() == false) {
@@ -313,7 +313,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
             if (dir.isDirectory()) {
                 File arquivos[] = dir.listFiles();
                 Arrays.sort(arquivos, new Comparator() {
-                   
+
                     @Override
                     public int compare(Object o1, Object o2) {
                         if (((File) o1).lastModified() > ((File) o2).lastModified()) {
@@ -326,7 +326,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                     }
                 });
                 ImageIcon image;
-                
+
                 for (File arquivo : arquivos) {
                     if (arquivo.getName().indexOf(".jpg") > 0 || arquivo.getName().indexOf(".JPG") > 0) {
                         if (listaFotosEnviadas.contains(arquivo.getName()) == false) {
@@ -346,7 +346,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 }
             }
         } catch (Exception e) {
-           JOptionPane.showMessageDialog(null, "Problema ao carregar fila de fotos. Error: "+ e.getMessage());
+            JOptionPane.showMessageDialog(null, "Problema ao carregar fila de fotos. Error: " + e.getMessage());
         }
     }
 
@@ -375,16 +375,16 @@ public class FrmPrincipal extends javax.swing.JFrame {
         ActionListener action2 = new ActionListener() {
             @Override
             public void actionPerformed(@SuppressWarnings("unused") java.awt.event.ActionEvent e) {
-                
+
                 (new Thread() {
-                   
+
                     @Override
                     public void run() {
                         try {
                             Thread.sleep(1000);
                             if (tblFotoEnviadas.getRowCount() > 0) {
                                 if (tblFotoEnviadas.getValueAt(0, 1).toString().length() > 0) {
-                                  
+
                                     final Object[] obj = new Object[3];
                                     obj[0] = tblFotoEnviadas.getValueAt(0, 0);
                                     obj[1] = tblFotoEnviadas.getValueAt(0, 1).toString();
@@ -397,7 +397,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                                     if (modelTblEnviadas.getRowCount() > 0) {
                                         modelTblEnviadas.removeRow(0);
                                     }
-                                  
+
                                     if (btnStartEvento.getText().equals("Parar Evento")) {
                                         boolean existe = false;
                                         int tot_impressas = modelTblImpressas.getRowCount();
@@ -409,7 +409,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                                         if (existe == false && hashtag != null && timerAutomatico.isRunning()) {
                                             EnviarParaImpressao(obj[1].toString());
                                             modelTblImpressas.addRow(obj);
-                                           
+
                                         }
                                     } else {
                                         if (modelTblImpressas.getRowCount() > 0) {
@@ -428,17 +428,17 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
         timerAutomatico = new Timer(10000, action2);
         if (automatico) {
-        
+
             timerAutomatico.start();
         }
 
         ActionListener action3 = new ActionListener() {
-           
+
             @Override
             public void actionPerformed(@SuppressWarnings("unused") java.awt.event.ActionEvent e) {
             }
         };
-        
+
         timerPrinter = new Timer(TIME_HANDLER, action3);
         timerPrinter.start();
 
@@ -498,7 +498,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 photo.createImageFromTemplate(arquivo, dirFotosFila + hashtag + "/", evento.getId_print_template());
             }
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "Problema ao Enviar para Impressão. Error: "+ ex.getMessage());
+            JOptionPane.showMessageDialog(null, "Problema ao Enviar para Impressão. Error: " + ex.getMessage());
         }
     }
 
@@ -507,7 +507,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         if (dir.isDirectory()) {
             File arquivos[] = dir.listFiles();
             Arrays.sort(arquivos, new Comparator() {
-                
+
                 @Override
                 public int compare(Object o1, Object o2) {
                     if (((File) o1).lastModified() > ((File) o2).lastModified()) {
@@ -534,7 +534,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                                 obj[1] = arquivo.getName();
                                 boolean existe = false;
                                 int tot_enviadas = modelTblEnviadas.getRowCount();
-                              
+
                                 for (int x = 0; x < tot_enviadas; x++) {
                                     if (modelTblEnviadas.getValueAt(x, 1).equals(obj[1].toString())) {
                                         existe = true;
@@ -544,8 +544,8 @@ public class FrmPrincipal extends javax.swing.JFrame {
                                     modelTblEnviadas.addRow(obj);
                                     listaFotosEnviadas.add(arquivo.getName());
                                 }
-                            }catch (Exception ex) {
-                                JOptionPane.showMessageDialog(null, "Problema ao carregar fotos. Error: "+ ex.getMessage());
+                            } catch (Exception ex) {
+                                JOptionPane.showMessageDialog(null, "Problema ao carregar fotos. Error: " + ex.getMessage());
                                 Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
@@ -559,7 +559,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         String[][] dados = evento.listEvents();
         String[] colunas = new String[]{"Código", "Nome", "Hashtag", "Data", "Impressão", "Telão", "Automatico", "Qtde Fotos"};
         DefaultTableModel model = new DefaultTableModel(dados, colunas) {
-            
+
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -1066,7 +1066,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnExibirTelaoActionPerformed
 
     private void createFrameAtLocation(Point p, FrmTelao frame) {
-       
+
         frame.setLocation(p);
         frame.pack();
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -1118,7 +1118,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-               
+
                 InputMap im = frame.painel.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW);
                 ActionMap am = frame.painel.getActionMap();
                 im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "getMeOutOfHere");
@@ -1138,22 +1138,22 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 });
 
                 createFrameAtLocation(p2, frame);
-       
+
             }
         });
-   }
+    }
 
 
     private void btnAtualizarPrintsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtualizarPrintsActionPerformed
 
-       Impressao impressora = new Impressao();
-       print = impressora.detectaImpressoras();
-       int i = 0;
+        Impressao impressora = new Impressao();
+        print = impressora.detectaImpressoras();
+        int i = 0;
         for (String p : print) {
             i = i + 1;
-            modelListaImpressoras.addElement(p); 
+            modelListaImpressoras.addElement(p);
         }
-              
+
     }//GEN-LAST:event_btnAtualizarPrintsActionPerformed
 
     private void btnStartPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartPrintActionPerformed
@@ -1252,7 +1252,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
-           
+
             @Override
             public void run() {
                 new FrmPrincipal().setVisible(true);

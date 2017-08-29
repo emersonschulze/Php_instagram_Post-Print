@@ -15,6 +15,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 public class FrmEvent extends javax.swing.JDialog {
+
     public String id_event;
     private JSONArray listaTemplates;
     private Event evento;
@@ -23,19 +24,19 @@ public class FrmEvent extends javax.swing.JDialog {
     private String logo_event;
     private boolean loaded = false;
     private boolean updateEvent = false;
-    
+
     public FrmEvent(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         try {
-            
+
             ImageIcon image = new ImageIcon(ImageIO.read(new URL("http://distilleryimage0.ak.instagram.com/72e9204a3c1311e3bc2222000a1cbcce_7.jpg")));
-         } catch (Exception ex) {
+        } catch (Exception ex) {
             Logger.getLogger(FrmEvent.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-      @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -405,37 +406,37 @@ public class FrmEvent extends javax.swing.JDialog {
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         loaded = false;
-        if(photo == null){
-            
+        if (photo == null) {
+
             System.out.println("Abriu Janela");
-            
+
             photo = new Photo();
             evento = new Event();
 
             listaTemplates = evento.listTemplate();
-            if(listaTemplates != null){
+            if (listaTemplates != null) {
                 int tot = listaTemplates.getJSONObject(0).getJSONArray("result").length();
-                for(int i = 0; i < tot;i++){
+                for (int i = 0; i < tot; i++) {
                     System.out.println("Adicionou template no combo");
                     cmbTemplate.addItem(listaTemplates.getJSONObject(0).getJSONArray("result").getJSONObject(i).get("name"));
                 }
             }
 
-            if(id_event != null){
-                if(evento.loadEvent(id_event)){
+            if (id_event != null) {
+                if (evento.loadEvent(id_event)) {
 
                     this.updateEvent = true;
 
                     txtNome.setText(evento.getName());
                     txtHashTag.setText(evento.getHashtag());
-                    txtData.setText(  evento.getDt_event());
-                    if(evento.getHave_print().equals("S")){
+                    txtData.setText(evento.getDt_event());
+                    if (evento.getHave_print().equals("S")) {
                         chkPrint.setSelected(true);
                     }
-                    if(evento.getHave_screen().equals("S")){
+                    if (evento.getHave_screen().equals("S")) {
                         chkTelao.setSelected(true);
                     }
-                    if(evento.getAutomatic().equals("S")){
+                    if (evento.getAutomatic().equals("S")) {
                         chkAutomatic.setSelected(true);
                     }
                     txtQtdeFotos.setText(evento.getQtde_fotos());
@@ -443,23 +444,23 @@ public class FrmEvent extends javax.swing.JDialog {
                     this.id_template = evento.getId_print_template();
                     this.logo_event = evento.getLogo_event();
 
-                    int tot =  cmbTemplate.getItemCount();
-                    for(int i = 0; i < tot;i++){
-                       
-                        if(this.id_template.equals(listaTemplates.getJSONObject(0).getJSONArray("result").getJSONObject(i).get("id_print_template"))){
+                    int tot = cmbTemplate.getItemCount();
+                    for (int i = 0; i < tot; i++) {
+
+                        if (this.id_template.equals(listaTemplates.getJSONObject(0).getJSONArray("result").getJSONObject(i).get("id_print_template"))) {
                             try {
-                               cmbTemplate.setSelectedItem(listaTemplates.getJSONObject(0).getJSONArray("result").getJSONObject(i).get("name"));
+                                cmbTemplate.setSelectedItem(listaTemplates.getJSONObject(0).getJSONArray("result").getJSONObject(i).get("name"));
                                 updatePreview();
                                 break;
                             } catch (JSONException ex) {
-                                 JOptionPane.showMessageDialog(null, "Problema ao abrir frame. Error: "+ ex.getMessage());
+                                JOptionPane.showMessageDialog(null, "Problema ao abrir frame. Error: " + ex.getMessage());
                                 Logger.getLogger(FrmEvent.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
                     }
 
-                }else{
-                    JOptionPane.showMessageDialog(null, "Não foi possível carregar o evento de código: "+id_event);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Não foi possível carregar o evento de código: " + id_event);
                     this.dispose();
                 }
             }
@@ -473,21 +474,21 @@ public class FrmEvent extends javax.swing.JDialog {
     }//GEN-LAST:event_formWindowClosed
 
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
-        if(chkAutomatic.isSelected()){
+        if (chkAutomatic.isSelected()) {
             evento.setAutomatic("S");
-        }else{
+        } else {
             evento.setAutomatic("N");
         }
 
-        if(chkPrint.isSelected()){
+        if (chkPrint.isSelected()) {
             evento.setHave_print("S");
-        }else{
+        } else {
             evento.setHave_print("N");
         }
 
-        if(chkTelao.isSelected()){
+        if (chkTelao.isSelected()) {
             evento.setHave_screen("S");
-        }else{
+        } else {
             evento.setHave_screen("N");
         }
 
@@ -497,36 +498,36 @@ public class FrmEvent extends javax.swing.JDialog {
         evento.setHashtag(txtHashTag.getText());
         evento.setName(txtNome.getText());
         evento.setQtde_fotos(txtQtdeFotos.getText());
-        
+
         String response;
-        if(updateEvent){
+        if (updateEvent) {
             response = evento.update();
-        }else{
+        } else {
             response = evento.insert();
         }
 
-        if(response.equals("OK")){
+        if (response.equals("OK")) {
             JOptionPane.showMessageDialog(null, "Evento salvo com sucesso!");
             this.dispose();
             return;
         }
-        
-        JOptionPane.showMessageDialog(null, "ERRO: "+response);
+
+        JOptionPane.showMessageDialog(null, "ERRO: " + response);
     }//GEN-LAST:event_btnSalvarActionPerformed
 
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
-         this.dispose();
+        this.dispose();
     }//GEN-LAST:event_btnCancelarActionPerformed
 
     private void txtHashTagFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtHashTagFocusLost
-      
-        
+
+
     }//GEN-LAST:event_txtHashTagFocusLost
 
     private void txtNomeCaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_txtNomeCaretUpdate
         // TODO add your handling code here:
-        
-        
+
+
     }//GEN-LAST:event_txtNomeCaretUpdate
 
     private void btnImportMarca1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImportMarca1ActionPerformed
@@ -539,13 +540,13 @@ public class FrmEvent extends javax.swing.JDialog {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             try {
-                 ImageIcon image = new ImageIcon(ImageIO.read(file));
-                 logo_event = file.getAbsolutePath();
+                ImageIcon image = new ImageIcon(ImageIO.read(file));
+                logo_event = file.getAbsolutePath();
 
                 updatePreview();
 
             } catch (Exception ex) {
-                System.out.println("problem accessing file"+file.getAbsolutePath());
+                System.out.println("problem accessing file" + file.getAbsolutePath());
             }
         } else {
             System.out.println("File access cancelled by user.");
@@ -558,7 +559,7 @@ public class FrmEvent extends javax.swing.JDialog {
 
     private void cmbTemplateItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbTemplateItemStateChanged
         // TODO add your handling code here:
-        
+
     }//GEN-LAST:event_cmbTemplateItemStateChanged
 
     private void txtNomeFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtNomeFocusLost
@@ -569,32 +570,31 @@ public class FrmEvent extends javax.swing.JDialog {
 
     private void btnDisponibilidadeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDisponibilidadeActionPerformed
         Webservice ws = new Webservice();
-        if(ws.existHashTag(txtHashTag.getText())){
+        if (ws.existHashTag(txtHashTag.getText())) {
             JOptionPane.showMessageDialog(null, "ATENÇÃO! Já existe fotos utilizando esta hashtag");
-        }else
-        {
+        } else {
             JOptionPane.showMessageDialog(null, "OK! hashtag disponível");
         }
     }//GEN-LAST:event_btnDisponibilidadeActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        if(loaded == true){
-            
+        if (loaded == true) {
+
             int tot = listaTemplates.getJSONObject(0).getJSONArray("result").length();
-            for(int i = 0; i < tot;i++){
-                if(cmbTemplate.getSelectedItem().toString().equals(listaTemplates.getJSONObject(0).getJSONArray("result").getJSONObject(i).get("name"))){
+            for (int i = 0; i < tot; i++) {
+                if (cmbTemplate.getSelectedItem().toString().equals(listaTemplates.getJSONObject(0).getJSONArray("result").getJSONObject(i).get("name"))) {
                     try {
                         this.id_template = listaTemplates.getJSONObject(0).getJSONArray("result").getJSONObject(i).get("id_print_template").toString();
                         updatePreview();
                         break;
                     } catch (JSONException ex) {
-                         JOptionPane.showMessageDialog(null, "Problema ao atualizar preview. Error: "+ ex.getMessage());
+                        JOptionPane.showMessageDialog(null, "Problema ao atualizar preview. Error: " + ex.getMessage());
                         Logger.getLogger(FrmEvent.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }
         }
-        
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void txtNomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNomeActionPerformed
@@ -605,15 +605,13 @@ public class FrmEvent extends javax.swing.JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_cmbTemplateActionPerformed
 
-    
-    private void updatePreview(){
+    private void updatePreview() {
         System.out.println("Update Preview");
         photo.nome_evento = txtNome.getText();
         photo.image_evento = this.logo_event;
-        photo.updatePreview(this.id_template, lblImageFoto, lblTexto1,lblTexto2,lblNomeUsuario,lblFotoUsuario);
+        photo.updatePreview(this.id_template, lblImageFoto, lblTexto1, lblTexto2, lblNomeUsuario, lblFotoUsuario);
     }
-    
-    
+
     /**
      * @param args the command line arguments
      */
