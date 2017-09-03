@@ -50,20 +50,15 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private Timer timer;
     private Timer timerAutomatico;
     private Timer timerPrinter;
-
     private DefaultTableModel modelTblEnviadas;
     private MyDefaultTableModel modelTblImpressas;
     private final DefaultListModel modelListaImpressoras;
-
     private FrmTelao frame;
-
     private final String dirFotosEnviadas = "FotosEnviadas/";
     private final String dirFotosFila = "FotosFila/";
     private final String dirFotosImpressas = "FotosImpressas/";
     private final String dirFotosTelao = "FotosTelao/";
-
     private final List<String> listaFotosEnviadas;
-
     private Impressao listaImpressoras;
     private List<String> print;
     private String[] printsSelecteds;
@@ -71,19 +66,15 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private final int printCurrent = 0;
     private int lastPrinterPrinted = 0;
     private final int current_image = 0;
-
     private boolean automatico = false;
     private boolean temTelao = false;
     private boolean temImpressao = false;
     private int qtdeImpressas = 0;
     private int totFotos = 0;
-
     private GraphicsDevice gd;
-
     private final static Logger LOG = Logger.getLogger(FrmPrincipal.class.getName());
     private final Object lock = new Object();
     private CountDownLatch waitForDevices;
-
     private Thread[] threadFila;
     private final int TIME_HANDLER = 3000;
     private Timer timerSleep;
@@ -351,6 +342,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
     }
 
     private void startPrint() {
+
         loadPrinteds();
         loadNaFila();
         loadFotosTelao();
@@ -360,6 +352,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         thread.start();
 
         ActionListener action = new ActionListener() {
+            
             @Override
             public void actionPerformed(@SuppressWarnings("unused") java.awt.event.ActionEvent e) {
                 ProcessoThread thread = new ProcessoThread();
@@ -375,16 +368,16 @@ public class FrmPrincipal extends javax.swing.JFrame {
         ActionListener action2 = new ActionListener() {
             @Override
             public void actionPerformed(@SuppressWarnings("unused") java.awt.event.ActionEvent e) {
-
+                
                 (new Thread() {
-
+                   
                     @Override
                     public void run() {
                         try {
                             Thread.sleep(1000);
                             if (tblFotoEnviadas.getRowCount() > 0) {
                                 if (tblFotoEnviadas.getValueAt(0, 1).toString().length() > 0) {
-
+                                  
                                     final Object[] obj = new Object[3];
                                     obj[0] = tblFotoEnviadas.getValueAt(0, 0);
                                     obj[1] = tblFotoEnviadas.getValueAt(0, 1).toString();
@@ -397,7 +390,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                                     if (modelTblEnviadas.getRowCount() > 0) {
                                         modelTblEnviadas.removeRow(0);
                                     }
-
+                                  
                                     if (btnStartEvento.getText().equals("Parar Evento")) {
                                         boolean existe = false;
                                         int tot_impressas = modelTblImpressas.getRowCount();
@@ -409,7 +402,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                                         if (existe == false && hashtag != null && timerAutomatico.isRunning()) {
                                             EnviarParaImpressao(obj[1].toString());
                                             modelTblImpressas.addRow(obj);
-
+                                           
                                         }
                                     } else {
                                         if (modelTblImpressas.getRowCount() > 0) {
@@ -428,17 +421,17 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
         timerAutomatico = new Timer(10000, action2);
         if (automatico) {
-
+        
             timerAutomatico.start();
         }
 
         ActionListener action3 = new ActionListener() {
-
+           
             @Override
             public void actionPerformed(@SuppressWarnings("unused") java.awt.event.ActionEvent e) {
             }
         };
-
+        
         timerPrinter = new Timer(TIME_HANDLER, action3);
         timerPrinter.start();
 
