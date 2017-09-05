@@ -16,6 +16,7 @@ import org.json.JSONObject;
 public class Webservice {
 
     private static final int TAM_MAX_BUFFER = 10240; // 10Kbytes
+    private final String urlTagsRecent = "https://api.instagram.com/v1/tags/[myTag]/media/recent?access_token=270817430.6c61e68.80a6f0177a744248a581147fe03e08ce";
     private final String urlTags = "https://api.instagram.com/v1/tags/[myTag]?access_token=270817430.6c61e68.80a6f0177a744248a581147fe03e08ce";
     private final String urlPhoto = "https://api.instagram.com/v1/media/[IDPhoto]?access_token=270817430.6c61e68.80a6f0177a744248a581147fe03e08ce";
     public String urlWSEvent = "https://postprint.com.br/WSPhotoParty/Event/[method]?format=json";
@@ -57,11 +58,12 @@ public class Webservice {
 
     public ArrayList<Photo> getListPhotos(String tag) {
         ArrayList<Photo> lista = new ArrayList<Photo>();
-        String response = this.request(urlTags.replace("[myTag]", tag), "", "GET");
+        String response = this.request(urlTagsRecent.replace("[myTag]", tag), "", "GET");
         if (!response.trim().equals("")) {
             try {
                 JSONArray jsonArray = new JSONArray("[" + response + "]");
                 JSONArray data = jsonArray.getJSONObject(0).getJSONArray("data");
+                
                 for (int i = 0; i < data.length(); i++) {
                     JSONObject json = data.getJSONObject(i);
                     Photo photo = new Photo();

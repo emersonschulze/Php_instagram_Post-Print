@@ -1,5 +1,7 @@
 package photoparty;
 
+
+        
 import classes.Event;
 import classes.Impressao;
 import classes.Instagram;
@@ -20,7 +22,6 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -45,413 +46,573 @@ import javax.swing.table.DefaultTableModel;
 
 public class FrmPrincipal extends javax.swing.JFrame {
 
-    private final Event evento;
+    private Event evento;
+    private Instagram insta;
     private String hashtag;
+    
     private Timer timer;
     private Timer timerAutomatico;
     private Timer timerPrinter;
+    
     private DefaultTableModel modelTblEnviadas;
     private MyDefaultTableModel modelTblImpressas;
-    private final DefaultListModel modelListaImpressoras;
+    private DefaultListModel modelListaImpressoras;
+            
     private FrmTelao frame;
-    private final String dirFotosEnviadas = "FotosEnviadas/";
-    private final String dirFotosFila = "FotosFila/";
-    private final String dirFotosImpressas = "FotosImpressas/";
-    private final String dirFotosTelao = "FotosTelao/";
-    private final List<String> listaFotosEnviadas;
-    private Impressao listaImpressoras;
-    private List<String> print;
+    
+    private String dirFotosEnviadas = "FotosEnviadas/";
+    private String dirFotosFila = "FotosFila/";
+    private String dirFotosImpressas = "FotosImpressas/";
+    private String dirFotosTelao = "FotosTelao/";
+    
+    private List<String> listaFotosEnviadas;
+    
+    private Impressao listaImpressora;
+    
     private String[] printsSelecteds;
     private int totPrints = 0;
-    private final int printCurrent = 0;
+    private int printCurrent = 0;
     private int lastPrinterPrinted = 0;
-    private final int current_image = 0;
+    private int current_image = 0;
+    
     private boolean automatico = false;
     private boolean temTelao = false;
     private boolean temImpressao = false;
     private int qtdeImpressas = 0;
     private int totFotos = 0;
+    
     private GraphicsDevice gd;
-    private final static Logger LOG = Logger.getLogger(FrmPrincipal.class.getName());
-    private final Object lock = new Object();
+    
+    private static Logger LOG = Logger.getLogger(FrmPrincipal.class.getName());
+   
+    private Object lock = new Object();
     private CountDownLatch waitForDevices;
+    
     private Thread[] threadFila;
-    private final int TIME_HANDLER = 3000;
+    private int TIME_HANDLER = 3000;
     private Timer timerSleep;
     private boolean SLEEP = false;
     public FilaPrinter fila;
-
+    
+    /**
+     * Creates new form FrmPrincipal
+     */
     public FrmPrincipal() {
         initComponents();
 
         this.setIconImage(new ImageIcon(getClass().getClassLoader().getResource("Assets/logo_postprint.png")).getImage());
-
+        
         evento = new Event();
-        listaFotosEnviadas = new ArrayList<String>();
-        modelListaImpressoras = new DefaultListModel();
-
+        //insta = new Instagram();
+        
+        listaFotosEnviadas = new ArrayList<String>();    
+        
         File dirEnviadas = new File(dirFotosEnviadas);
-        if (dirEnviadas.exists() == false) {
+        if(dirEnviadas.exists() == false){
             dirEnviadas.mkdir();
         }
         File dirImpressas = new File(dirFotosImpressas);
-        if (dirImpressas.exists() == false) {
+        if(dirImpressas.exists() == false){
             dirImpressas.mkdir();
         }
-
+        
         File dirFila = new File(dirFotosFila);
-        if (dirFila.exists() == false) {
+        if(dirFila.exists() == false){
             dirFila.mkdir();
         }
-
+        
         File dirTelao = new File(dirFotosTelao);
-        if (dirTelao.exists() == false) {
+        if(dirTelao.exists() == false){
             dirTelao.mkdir();
         }
-
+        
+        modelListaImpressoras = new DefaultListModel();
         lstImpressoras.setModel(modelListaImpressoras);
-        String[] colunas = new String[]{"Foto", "Nome"};
-        modelTblEnviadas = new DefaultTableModel(null, colunas);
-
+        
+        String[] colunas = new String []{"Foto","Nome"}; 
+        modelTblEnviadas = new DefaultTableModel(null, colunas){
+            public boolean isCellEditable(int row, int column){
+                return false;
+            }
+            
+            public Class getColumnClass(int column){
+                if(column == 0){
+                    return ImageIcon.class;
+                }
+                return getValueAt(0, column).getClass();
+            }
+            
+        };
+        
         tblFotoEnviadas.setModel(modelTblEnviadas);
-        tblFotoEnviadas.getColumnModel().getColumn(0).setPreferredWidth(80);
-        tblFotoEnviadas.getColumnModel().getColumn(1).setPreferredWidth(350);
-
+        tblFotoEnviadas.getColumnModel().getColumn(0).setPreferredWidth(80); 
+        tblFotoEnviadas.getColumnModel().getColumn(1).setPreferredWidth(350); 
+        
+        
         tblFotoEnviadas.addMouseListener(new MouseAdapter() {
-
-            @Override
+            
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2 && automatico == false) {
+               /*boolean isVisible = false; 
+               if(frame != null){
+                   isVisible = frame.isVisible();
+               }*/
+               if(e.getClickCount() == 2 && automatico == false){
                     int row = tblFotoEnviadas.getSelectedRow();
                     e.consume();
-
+                    
+                    /*if(row > 0 ){
+                        row--;
+                    }else{
+                        row = tblFotoEnviadas.getRowCount()-1;
+                    }*/
+                    
                     Object[] obj = new Object[3];
                     obj[0] = tblFotoEnviadas.getValueAt(row, 0);
                     obj[1] = tblFotoEnviadas.getValueAt(row, 1).toString();
-                    if (temImpressao) {
+                    if(temImpressao){
                         obj[2] = "NA FILA";
-                    } else {
+                    }else{
                         obj[2] = "NO TELÃO";
                     }
-
+                    
                     modelTblImpressas.addRow(obj);
                     modelTblEnviadas.removeRow(row);
-
-                    EnviarParaImpressao(obj[1].toString());
-
-                    JOptionPane.showMessageDialog(null, "Mandou para Impressão");
+                    
+                    sendToPrint(obj[1].toString());
+                    
+                    //JOptionPane.showMessageDialog(null, "Mandou para Impressão");
                 }
             }
+            
         });
-
-        String[] colunas2 = new String[]{"Foto", "Nome", "Status"};
+        /*
+        tblFotoEnviadas.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent e) {
+                
+                boolean isVisible = false; 
+                if(frame != null){
+                   isVisible = frame.isVisible();
+                } 
+                
+                int c = e.getKeyCode();
+                if (c == KeyEvent.VK_DELETE) {
+                    int row = tblFotoEnviadas.getSelectedRow();
+                    e.consume();
+                    modelTblEnviadas.removeRow(row);
+                }else if(c == KeyEvent.VK_ENTER && automatico == false && isVisible == false){
+                    int row = tblFotoEnviadas.getSelectedRow();
+                    e.consume();
+                    
+                    if(row > 0 ){
+                        row--;
+                    }else{
+                        row = tblFotoEnviadas.getRowCount()-1;
+                    }
+                    
+                    Object[] obj = new Object[3];
+                    obj[0] = tblFotoEnviadas.getValueAt(row, 0);
+                    obj[1] = tblFotoEnviadas.getValueAt(row, 1).toString();
+                    if(temImpressao){
+                        obj[2] = "NA FILA";
+                    }else{
+                        obj[2] = "NO TELÃO";
+                    }
+                    
+                    modelTblImpressas.addRow(obj);
+                    modelTblEnviadas.removeRow(row);
+                    
+                    sendToPrint(obj[1].toString());
+                    
+                    //JOptionPane.showMessageDialog(null, "Mandou para Impressão");
+                }
+            }
+        });*/
+        
+        String[] colunas2 = new String []{"Foto","Nome","Status"}; 
         modelTblImpressas = new MyDefaultTableModel(null, colunas2);
-
+        
         tblFotosImpressas.setModel(modelTblImpressas);
-        tblFotosImpressas.getColumnModel().getColumn(0).setPreferredWidth(80);
+        tblFotosImpressas.getColumnModel().getColumn(0).setPreferredWidth(80); 
         tblFotosImpressas.getColumnModel().getColumn(1).setPreferredWidth(300);
         tblFotosImpressas.getColumnModel().getColumn(2).setPreferredWidth(100);
-
-        tblFotosImpressas.addMouseListener(new MouseAdapter() {
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-
-                if (e.getClickCount() == 2) {
+        
+        /*
+        tblFotosImpressas.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent e) {
+                
+                boolean isVisible = false; 
+                if(frame != null){
+                   isVisible = frame.isVisible();
+                } 
+                
+                int c = e.getKeyCode();
+                if(c == KeyEvent.VK_ENTER && isVisible == false){
                     int row = tblFotosImpressas.getSelectedRow();
                     e.consume();
-
-                    if (tblFotosImpressas.getValueAt(row, 2).toString().equals("NO TELÃO") == false) {
-                        if (tblFotosImpressas.getValueAt(row, 2).toString().equals("ERRO") == true && btnStartPrint.isEnabled() == false) {
-                            JOptionPane.showMessageDialog(null, "Pare o processo para realizar esta ação!");
-                        } else {
-                            int dialogResult = JOptionPane.showConfirmDialog(null, "Deseja realmente reimprimir esta foto?", "Atenção", JOptionPane.YES_NO_OPTION);
-                            if (dialogResult == JOptionPane.YES_OPTION) {
-                                EnviarParaImpressao(tblFotosImpressas.getValueAt(row, 1).toString());
+                    if(row > 0 ){
+                        row--;
+                    }else{
+                        row = tblFotosImpressas.getRowCount()-1;
+                    }
+                    if(tblFotosImpressas.getValueAt(row, 2).toString().equals("IMPRIMINDO")){
+                       JOptionPane.showMessageDialog(null,"Foto já está sendo impressa"); 
+                    }else{
+                        if(tblFotosImpressas.getValueAt(row, 2).toString().equals("NO TELÃO") == false){
+                            int dialogResult = JOptionPane.showConfirmDialog (null, "Deseja realmente reimprimir esta foto?","Atenção",JOptionPane.YES_NO_OPTION);
+                            if(dialogResult == JOptionPane.YES_OPTION){
+                                sendToPrint(tblFotosImpressas.getValueAt(row, 1).toString());
                                 tblFotosImpressas.setValueAt("NA FILA", row, 2);
                             }
                         }
                     }
                 }
             }
-
-        });
-
-        tblEvento.addMouseListener(new MouseAdapter() {
-
-            @Override
+        });*/
+        
+        tblFotosImpressas.addMouseListener(new MouseAdapter() {
+            
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2 && tblEvento.isEnabled() == true) {
-                    JTable target = (JTable) e.getSource();
+                
+               /*boolean isVisible = false; 
+               if(frame != null){
+                   isVisible = frame.isVisible();
+               }*/  
+               if(e.getClickCount() == 2 ) {
+                    int row = tblFotosImpressas.getSelectedRow();
+                    e.consume();
+                    //if(row > 0 ){
+                        //row--;
+                    //}else{
+                        //row = tblFotosImpressas.getRowCount()-1;
+                    //}
+                    /*if(tblFotosImpressas.getValueAt(row, 2).toString().equals("IMPRIMINDO")){
+                       JOptionPane.showMessageDialog(null,"Foto já está sendo impressa"); 
+                    }else{*/
+                        if(tblFotosImpressas.getValueAt(row, 2).toString().equals("NO TELÃO") == false){
+                           if(tblFotosImpressas.getValueAt(row, 2).toString().equals("ERRO") == true && btnStartPrint.isEnabled() == false){
+                               JOptionPane.showMessageDialog(null, "Pare o processo para realizar esta ação!");
+                           }else{
+                                int dialogResult = JOptionPane.showConfirmDialog (null, "Deseja realmente reimprimir esta foto?","Atenção",JOptionPane.YES_NO_OPTION);
+                                if(dialogResult == JOptionPane.YES_OPTION){
+                                    sendToPrint(tblFotosImpressas.getValueAt(row, 1).toString());
+                                    tblFotosImpressas.setValueAt("NA FILA", row, 2);
+                                }
+                           }
+                        }
+                    //}
+               }
+            }
+            
+        });
+        
+        
+        tblEvento.addMouseListener(new MouseAdapter() {
+            
+            public void mouseClicked(MouseEvent e) {
+               if(e.getClickCount() == 2 && tblEvento.isEnabled() == true) {
+                    JTable target = (JTable)e.getSource();
                     int row = target.getSelectedRow();
-
+                    
                     FrmEvent frm = new FrmEvent(FrmPrincipal.this, true);
                     frm.id_event = target.getValueAt(row, 0).toString();
                     frm.setLocationRelativeTo(null);
                     frm.setVisible(true);
-                }
+               }
             }
-
+            
         });
-
+        
         tblFotoEnviadas.getTableHeader().setVisible(false);
         tblFotosImpressas.getTableHeader().setVisible(false);
-
+        
+        //String pathDirectoryImages = "/Users/cardial/Pictures/Teste/";
+        
+        //updaListPrints();
+        
         gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         gd.setFullScreenWindow(null);
+
     }
-
-    private void loadFotosTelao() {
-        try {
-            String outputDirectory = dirFotosTelao + hashtag + "/";
-
+    
+    private void loadFotosTelao(){
+        try {  
+            
+            String outputDirectory = dirFotosTelao+hashtag+"/";
+            
             File dirTelao = new File(outputDirectory);
-            if (dirTelao.exists() == false) {
+            if(dirTelao.exists() == false){
                 dirTelao.mkdir();
             }
-
+            
             File dir = new File(outputDirectory);
-            if (dir.isDirectory()) {
+            if(dir.isDirectory()){
                 File arquivos[] = dir.listFiles();
                 ImageIcon image;
-                for (File arquivo : arquivos) {
-                    if (arquivo.getName().indexOf(".jpg") > 0 || arquivo.getName().indexOf(".JPG") > 0) {
-                        if (listaFotosEnviadas.contains(arquivo.getName()) == false) {
-                            String pathFile = arquivo.getAbsolutePath();
+                for(int i = 0; i < arquivos.length;i++){
+                    if(arquivos[i].getName().indexOf(".jpg") > 0 || arquivos[i].getName().indexOf(".JPG") > 0){
+                        if(listaFotosEnviadas.contains(arquivos[i].getName()) == false){
+                            String pathFile = arquivos[i].getAbsolutePath();
                             image = new ImageIcon(pathFile);
-                            Image scaledImage = image.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+                            Image scaledImage = image.getImage().getScaledInstance(80,80,Image.SCALE_SMOOTH);
                             image.setImage(scaledImage);
                             Object[] obj = new Object[3];
                             obj[0] = image;
-                            obj[1] = arquivo.getName();
+                            obj[1] = arquivos[i].getName();
                             obj[2] = "NO TELÃO";
-                            listaFotosEnviadas.add(arquivo.getName());
+                            
+                            listaFotosEnviadas.add(arquivos[i].getName());
                             modelTblImpressas.addRow(obj);
-                        }
+
+                            
+                        } 
                     }
                 }
             }
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Problema ao exibir foto no telão error: " + e.getMessage());
-        }
+            
+        } catch (Exception e) {   
+            e.printStackTrace();  
+        }  
+        
     }
-
-    private void loadPrinteds() {
-        try {
+    
+    private void loadPrinteds(){
+        try {  
             qtdeImpressas = 0;
-            String outputDirectory = dirFotosImpressas + hashtag + "/";
-
+            String outputDirectory = dirFotosImpressas+hashtag+"/";
+            
             File dirImpressas = new File(outputDirectory);
-            if (dirImpressas.exists() == false) {
+            if(dirImpressas.exists() == false){
                 dirImpressas.mkdir();
             }
-
+            
             File dir = new File(outputDirectory);
-            if (dir.isDirectory()) {
+            if(dir.isDirectory()){
                 File arquivos[] = dir.listFiles();
-                Arrays.sort(arquivos, new Comparator() {
-
-                    @Override
+                Arrays.sort( arquivos, new Comparator()
+                {
                     public int compare(Object o1, Object o2) {
-                        if (((File) o1).lastModified() > ((File) o2).lastModified()) {
+                        if (((File)o1).lastModified() > ((File)o2).lastModified()) {
                             return +1;
-                        } else if (((File) o1).lastModified() < ((File) o2).lastModified()) {
+                        } else if (((File)o1).lastModified() < ((File)o2).lastModified()) {
                             return -1;
                         } else {
                             return 0;
                         }
                     }
-                });
+                }); 
                 ImageIcon image;
-                for (File arquivo : arquivos) {
-                    if (arquivo.getName().indexOf(".jpg") > 0 || arquivo.getName().indexOf(".JPG") > 0) {
-                        if (listaFotosEnviadas.contains(arquivo.getName()) == false) {
-                            String pathFile = arquivo.getAbsolutePath();
-                            String imagePath = pathFile.replaceAll("FotosImpressas", "FotosEnviadas");
+                for(int i = 0; i < arquivos.length;i++){
+                    if(arquivos[i].getName().indexOf(".jpg") > 0 || arquivos[i].getName().indexOf(".JPG") > 0){
+                        if(listaFotosEnviadas.contains(arquivos[i].getName()) == false){
+
+                            String pathFile = arquivos[i].getAbsolutePath();
+
+                            String imagePath = pathFile.replaceAll("FotosImpressas","FotosEnviadas");
                             image = new ImageIcon(imagePath);
-                            Image scaledImage = image.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+                            Image scaledImage = image.getImage().getScaledInstance(80,80,Image.SCALE_SMOOTH);
                             image.setImage(scaledImage);
                             Object[] obj = new Object[3];
                             obj[0] = image;
-                            obj[1] = arquivo.getName();
+                            obj[1] = arquivos[i].getName();
                             obj[2] = "IMPRESSA";
+
                             qtdeImpressas++;
-                            listaFotosEnviadas.add(arquivo.getName());
+                            listaFotosEnviadas.add(arquivos[i].getName());
                             modelTblImpressas.addRow(obj);
+                            
+    //                        modelTblImpressas.setRowColour(modelTblImpressas.getRowCount()-1, Color.GREEN);
+
+                            
                         }
                     }
                 }
             }
-            lblQtdeFotos.setText("Fotos Impressas: " + String.valueOf(qtdeImpressas) + " / " + totFotos);
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Problema ao exibir fotos impressas. Error: " + e.getMessage());
-        }
-
+            
+            lblQtdeFotos.setText("Fotos Impressas: "+String.valueOf(qtdeImpressas)+" / "+totFotos);
+            
+        } catch (Exception e) {   
+            e.printStackTrace();  
+        }  
+        
     }
-
-    private void loadNaFila() {
-        try {
-            String outputDirectory = dirFotosFila + hashtag + "/";
-
+    
+    
+     private void loadNaFila(){
+        try {  
+            //qtdeImpressas = 0;
+            String outputDirectory = dirFotosFila+hashtag+"/";
+            
             File dirImpressas = new File(outputDirectory);
-            if (dirImpressas.exists() == false) {
+            if(dirImpressas.exists() == false){
                 dirImpressas.mkdir();
             }
-
+            
             File dir = new File(outputDirectory);
-            if (dir.isDirectory()) {
+            if(dir.isDirectory()){
                 File arquivos[] = dir.listFiles();
-                Arrays.sort(arquivos, new Comparator() {
-
-                    @Override
+                Arrays.sort( arquivos, new Comparator()
+                {
                     public int compare(Object o1, Object o2) {
-                        if (((File) o1).lastModified() > ((File) o2).lastModified()) {
+                        if (((File)o1).lastModified() > ((File)o2).lastModified()) {
                             return +1;
-                        } else if (((File) o1).lastModified() < ((File) o2).lastModified()) {
+                        } else if (((File)o1).lastModified() < ((File)o2).lastModified()) {
                             return -1;
                         } else {
                             return 0;
                         }
                     }
-                });
+                }); 
                 ImageIcon image;
+                for(int i = 0; i < arquivos.length;i++){
+                    if(arquivos[i].getName().indexOf(".jpg") > 0 || arquivos[i].getName().indexOf(".JPG") > 0){
+                        if(listaFotosEnviadas.contains(arquivos[i].getName()) == false){
+                            String pathFile = arquivos[i].getAbsolutePath();
 
-                for (File arquivo : arquivos) {
-                    if (arquivo.getName().indexOf(".jpg") > 0 || arquivo.getName().indexOf(".JPG") > 0) {
-                        if (listaFotosEnviadas.contains(arquivo.getName()) == false) {
-                            String pathFile = arquivo.getAbsolutePath();
-                            String imagePath = pathFile.replaceAll("FotosFila", "FotosEnviadas");
+                            String imagePath = pathFile.replaceAll("FotosFila","FotosEnviadas");
                             image = new ImageIcon(imagePath);
-                            Image scaledImage = image.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+                            Image scaledImage = image.getImage().getScaledInstance(80,80,Image.SCALE_SMOOTH);
                             image.setImage(scaledImage);
                             Object[] obj = new Object[3];
                             obj[0] = image;
-                            obj[1] = arquivo.getName();
+                            obj[1] = arquivos[i].getName();
                             obj[2] = "NA FILA";
-                            listaFotosEnviadas.add(arquivo.getName());
+
+                            //qtdeImpressas++;
+                            listaFotosEnviadas.add(arquivos[i].getName());
                             modelTblImpressas.addRow(obj);
+                            
+    //                        modelTblImpressas.setRowColour(modelTblImpressas.getRowCount()-1, Color.GREEN);
+
+                            
+                        }else{
+                            //arquivos[i].delete();   
                         }
                     }
                 }
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Problema ao carregar fila de fotos. Error: " + e.getMessage());
-        }
+            
+            //lblQtdeFotos.setText("Fotos Impressas: "+String.valueOf(qtdeImpressas)+" / "+totFotos);
+            
+        } catch (Exception e) {   
+            e.printStackTrace();  
+        }  
+        
     }
-
-    private void startPrint() {
-
+    
+    
+    private void startPrint(){
+        
         loadPrinteds();
         loadNaFila();
         loadFotosTelao();
-
+        
         ProcessoThread thread = new ProcessoThread();
         thread.action = "importFotos";
         thread.start();
-
-        ActionListener action = new ActionListener() {
-            
-            @Override
-            public void actionPerformed(@SuppressWarnings("unused") java.awt.event.ActionEvent e) {
+        
+        //loadFotosEnviadas();
+        
+        ActionListener action = new ActionListener() {  
+            public void actionPerformed(@SuppressWarnings("unused") java.awt.event.ActionEvent e) {  
+                //TimerTest.this.label.setText((number++) + "");  
+                //insta.importPhotosInstagram(hashtag, dirFotosEnviadas);
+                
+                //thread.start();
+                
                 ProcessoThread thread = new ProcessoThread();
                 thread.action = "importFotos";
                 thread.start();
-
-                loadFotosEnviadas();
-            }
-        };
-        timer = new Timer(12000, action);//Importa fotos do instagram a cada 10 segundosx  
-        timer.start();
-
-        ActionListener action2 = new ActionListener() {
-            @Override
-            public void actionPerformed(@SuppressWarnings("unused") java.awt.event.ActionEvent e) {
                 
-                (new Thread() {
-                   
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(1000);
-                            if (tblFotoEnviadas.getRowCount() > 0) {
-                                if (tblFotoEnviadas.getValueAt(0, 1).toString().length() > 0) {
-                                  
-                                    final Object[] obj = new Object[3];
-                                    obj[0] = tblFotoEnviadas.getValueAt(0, 0);
-                                    obj[1] = tblFotoEnviadas.getValueAt(0, 1).toString();
-                                    if (temImpressao == true) {
-                                        obj[2] = "NA FILA";
-                                    } else {
-                                        obj[2] = "NO TELÃO";
-                                    }
-
-                                    if (modelTblEnviadas.getRowCount() > 0) {
-                                        modelTblEnviadas.removeRow(0);
-                                    }
-                                  
-                                    if (btnStartEvento.getText().equals("Parar Evento")) {
-                                        boolean existe = false;
-                                        int tot_impressas = modelTblImpressas.getRowCount();
-                                        for (int x = 0; x < tot_impressas; x++) {
-                                            if (modelTblImpressas.getValueAt(x, 1).equals(obj[1].toString())) {
-                                                existe = true;
+                loadFotosEnviadas();
+            }  
+        };  
+        timer = new Timer(12000, action);//Importa fotos do instagram a cada 10 segundosx  
+        timer.start();  
+        
+        ActionListener action2 = new ActionListener() {  
+            public void actionPerformed(@SuppressWarnings("unused") java.awt.event.ActionEvent e) {  
+                //System.out.println("Entrou no timer");
+                
+                        (new Thread(){
+                            public void run(){
+                                try {
+                                    Thread.sleep(1000);
+                                    if(tblFotoEnviadas.getRowCount() > 0){
+                                        if(tblFotoEnviadas.getValueAt(0, 1).toString().length() > 0){
+                                            //System.out.println("Mandou para impressora");
+                                            
+                                            final Object[] obj = new Object[3];
+                                            obj[0] = tblFotoEnviadas.getValueAt(0, 0);
+                                            obj[1] = tblFotoEnviadas.getValueAt(0, 1).toString();
+                                            if(temImpressao == true){
+                                                obj[2] = "NA FILA";
+                                            }else{
+                                                obj[2] = "NO TELÃO";
                                             }
-                                        }
-                                        if (existe == false && hashtag != null && timerAutomatico.isRunning()) {
-                                            EnviarParaImpressao(obj[1].toString());
-                                            modelTblImpressas.addRow(obj);
-                                           
-                                        }
-                                    } else {
-                                        if (modelTblImpressas.getRowCount() > 0) {
-                                            modelTblImpressas.removeRow(0);
-                                        }
+                                            
+                                            if(modelTblEnviadas.getRowCount() > 0){
+                                                modelTblEnviadas.removeRow(0);
+                                            }
+                                            //Thread.sleep(1000);
+                                            if(btnStartEvento.getText().equals("Parar Evento")){
+                                                boolean existe = false;
+                                                int tot_impressas = modelTblImpressas.getRowCount();
+                                                for(int x = 0; x < tot_impressas; x++){
+                                                    if(modelTblImpressas.getValueAt(x, 1).equals(obj[1].toString())){
+                                                        existe = true;
+                                                    }
+                                                }
+                                                if(existe == false && hashtag != null && timerAutomatico.isRunning()){
+                                                    sendToPrint(obj[1].toString());
+                                                    modelTblImpressas.addRow(obj);
+                                                    //System.out.println("Adicionou a lista de Impressão: "+obj[1].toString());
+                                                }
+                                            }else{
+                                                if(modelTblImpressas.getRowCount() > 0){
+                                                    modelTblImpressas.removeRow(0);
+                                                }
+                                            }
+                                       }
                                     }
+                                } catch (InterruptedException ex) {
+                                    Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
                                 }
                             }
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                }).start();
-            }
-        };
-
-        timerAutomatico = new Timer(10000, action2);
-        if (automatico) {
+                        }).start();
+            }  
+        };  
         
+        timerAutomatico = new Timer(10000,action2);
+        if(automatico){
+            //System.out.println("Mandou para impressora");
             timerAutomatico.start();
         }
-
-        ActionListener action3 = new ActionListener() {
-           
-            @Override
-            public void actionPerformed(@SuppressWarnings("unused") java.awt.event.ActionEvent e) {
-            }
-        };
         
-        timerPrinter = new Timer(TIME_HANDLER, action3);
-        timerPrinter.start();
-
+        ActionListener action3 = new ActionListener() {  
+            public void actionPerformed(@SuppressWarnings("unused") java.awt.event.ActionEvent e) {  
+            
+            }  
+        };  
+        timerPrinter = new Timer(TIME_HANDLER, action3);  
+        timerPrinter.start();  
+        
         SLEEP = false;
         lastPrinterPrinted = 0;
     }
-
-    private void stopPrint() {
-        if (timer != null) {
-            if (timer.isRunning()) {
+    
+    private void stopPrint(){
+        if(timer != null){
+            if(timer.isRunning()){
                 timer.stop();
             }
-            if (automatico) {
-                if (timerAutomatico.isRunning()) {
+            if(automatico){
+                if(timerAutomatico.isRunning()){
                     timerAutomatico.stop();
                 }
             }
-            timerPrinter.stop();
-            if (timerSleep != null) {
-                if (timerSleep.isRunning()) {
+            timerPrinter.stop(); 
+            if(timerSleep != null){
+                if(timerSleep.isRunning()){
                     timerSleep.stop();
                 }
             }
@@ -459,86 +620,105 @@ public class FrmPrincipal extends javax.swing.JFrame {
         SLEEP = false;
         lastPrinterPrinted = 0;
     }
-
-    private Photo getPhoto(String nameFile) {
+    
+    private Photo getPhoto(String nameFile){
         String[] info = nameFile.split("-");
         Webservice ws = new Webservice();
-        return ws.getInfoPhoto(info[1].replace(".jpg", ""));
+        return ws.getInfoPhoto(info[1].replace(".jpg",""));
     }
-
-    private void EnviarParaImpressao(String nameFile) {
+    
+    private void sendToPrint(String nameFile){
+        
         Photo photo = new Photo();
-
+        
         try {
-            File arquivo = new File(dirFotosEnviadas + hashtag + "/" + nameFile);
-            if (temTelao) {
-                String orig = dirFotosEnviadas + hashtag + "/" + nameFile;
-                String dest = dirFotosTelao + hashtag + "/" + nameFile;
+            //System.out.println("NOME DO ARQUIVO: "+nameFile);
+            File arquivo = new File(dirFotosEnviadas+hashtag+"/"+nameFile);
+            if(temTelao){
+                String orig = dirFotosEnviadas+hashtag+"/"+nameFile;
+                String dest = dirFotosTelao+hashtag+"/"+nameFile;
                 InputStream in = new FileInputStream(orig);
                 OutputStream out = new FileOutputStream(dest);
                 byte[] buf = new byte[1024];
                 int len;
                 while ((len = in.read(buf)) > 0) {
-                    out.write(buf, 0, len);
+                   out.write(buf, 0, len);
                 }
                 in.close();
-                out.close();
+                out.close(); 
             }
-            if (temImpressao) {
+            if(temImpressao){
                 photo = getPhoto(nameFile);
-                photo.nome_evento = lblNomeEvento.getText();
+                photo.nome_evento = lblNomeEvento.getText();            
                 photo.image_evento = evento.getLogo_event();
-                photo.createImageFromTemplate(arquivo, dirFotosFila + hashtag + "/", evento.getId_print_template());
+                photo.createImageFromTemplate(arquivo,dirFotosFila+hashtag+"/",evento.getId_print_template());
             }
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "Problema ao Enviar para Impressão. Error: " + ex.getMessage());
-        }
+        } catch (Exception ex) {}
+        
     }
-
-    private void loadFotosEnviadas() {
-        File dir = new File(dirFotosEnviadas + hashtag + "/");
-        if (dir.isDirectory()) {
+    
+    private boolean isYourTurn(int printer){
+        if(totPrints == 1){
+            return true;
+        }
+        if(printer == lastPrinterPrinted){
+            for(int x = 0; x < totPrints; x++){
+                if(x != printer){
+                    if(listaImpressora.imprime(hashtag) == false){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+    
+   
+    
+    private void loadFotosEnviadas(){
+        File dir = new File(dirFotosEnviadas+hashtag+"/");
+        if(dir.isDirectory()){
             File arquivos[] = dir.listFiles();
-            Arrays.sort(arquivos, new Comparator() {
-
-                @Override
+            Arrays.sort( arquivos, new Comparator()
+            {
                 public int compare(Object o1, Object o2) {
-                    if (((File) o1).lastModified() > ((File) o2).lastModified()) {
+                    if (((File)o1).lastModified() > ((File)o2).lastModified()) {
                         return +1;
-                    } else if (((File) o1).lastModified() < ((File) o2).lastModified()) {
+                    } else if (((File)o1).lastModified() < ((File)o2).lastModified()) {
                         return -1;
                     } else {
                         return 0;
                     }
                 }
-            });
-
-            for (File arquivo : arquivos) {
-                if (arquivo.getName().indexOf(".jpg") > 0 || arquivo.getName().indexOf(".JPG") > 0) {
-                    if (!arquivo.getName().contains("_baixando.jpg")) {
-                        if (listaFotosEnviadas.contains(arquivo.getName()) == false) {
+            }); 
+            
+            
+            for(int i = 0; i < arquivos.length;i++){
+                if(arquivos[i].getName().indexOf(".jpg") > 0 || arquivos[i].getName().indexOf(".JPG") > 0){
+                    if(arquivos[i].getName().indexOf("_baixando.jpg") < 0){
+                        if(listaFotosEnviadas.contains(arquivos[i].getName()) == false){
                             ImageIcon image;
                             try {
-                                image = new ImageIcon(arquivo.getAbsolutePath());
-                                Image scaledImage = image.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+                                image = new ImageIcon(arquivos[i].getAbsolutePath());
+                                Image scaledImage = image.getImage().getScaledInstance(80,80,Image.SCALE_SMOOTH);
                                 image.setImage(scaledImage);
+
                                 Object[] obj = new Object[2];
                                 obj[0] = image;
-                                obj[1] = arquivo.getName();
+                                obj[1] = arquivos[i].getName();
+                                
                                 boolean existe = false;
                                 int tot_enviadas = modelTblEnviadas.getRowCount();
-
-                                for (int x = 0; x < tot_enviadas; x++) {
-                                    if (modelTblEnviadas.getValueAt(x, 1).equals(obj[1].toString())) {
+                                for(int x = 0; x < tot_enviadas; x++){
+                                    if(modelTblEnviadas.getValueAt(x, 1).equals(obj[1].toString())){
                                         existe = true;
                                     }
                                 }
-                                if (existe == false) {
+                                if(existe == false){
                                     modelTblEnviadas.addRow(obj);
-                                    listaFotosEnviadas.add(arquivo.getName());
+                                    listaFotosEnviadas.add(arquivos[i].getName());
                                 }
                             } catch (Exception ex) {
-                                JOptionPane.showMessageDialog(null, "Problema ao carregar fotos. Error: " + ex.getMessage());
                                 Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
@@ -547,21 +727,23 @@ public class FrmPrincipal extends javax.swing.JFrame {
             }
         }
     }
-
-    public void loadEventos() {
+    
+    public void loadEventos(){
         String[][] dados = evento.listEvents();
-        String[] colunas = new String[]{"Código", "Nome", "Hashtag", "Data", "Impressão", "Telão", "Automatico", "Qtde Fotos"};
-        DefaultTableModel model = new DefaultTableModel(dados, colunas) {
-
-            @Override
-            public boolean isCellEditable(int row, int column) {
+        String[] colunas = new String []{"Código","Nome","Hashtag","Data", "Impressão","Telão", "Automatico", "Qtde Fotos"}; 
+        DefaultTableModel model = new DefaultTableModel(dados, colunas){
+            public boolean isCellEditable(int row, int column){
                 return false;
             }
-        };
-
+         };
+        
+        /*DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment( JLabel.CENTER );
+        centerRenderer.setBackground(Color.CYAN);*/
+        
         tblEvento.setModel(model);
     }
-
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -1140,7 +1322,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private void btnAtualizarPrintsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtualizarPrintsActionPerformed
 
         Impressao impressora = new Impressao();
-        print = impressora.detectaImpressoras();
+        List<String> print = impressora.detectaImpressoras();
         int i = 0;
         for (String p : print) {
             i = i + 1;
@@ -1197,6 +1379,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
         public String fileName = "";
         public Impressao printer;
+        private MyDefaultTableModel table;
 
         public FilaPrinter(Impressao impressao, String image) {
             fileName = image;
