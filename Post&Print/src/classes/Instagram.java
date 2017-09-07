@@ -5,6 +5,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -27,7 +28,6 @@ public class Instagram {
 
     public static boolean importPhotosInstagram(String tag, String outputDirectory) {
         try {
-
             outputDirectory = outputDirectory + tag + "/";
 
             File dirEnviadas = new File(outputDirectory);
@@ -47,45 +47,39 @@ public class Instagram {
                 images[j][2] = result.get(j).nome_usuario;
             }
 
-            for (int i = 0; i < images.length; i++) {
-
-                String nomeArquivo = outputDirectory + images[i][2] + "-" + images[i][0] + "_baixando.jpg";
+            for (String[] image : images) {
+                String nomeArquivo = outputDirectory + image[2] + "-" + image[0] + "_baixando.jpg";
                 File fExist = new File(nomeArquivo);
-                File fExist2 = new File(outputDirectory + images[i][2] + "-" + images[i][0] + ".jpg");
-
-                if (fExist2.exists() == false && fExist.exists() == false) {//Se não existe na pasta, então Baixa
-
+                File fExist2 = new File(outputDirectory + image[2] + "-" + image[0] + ".jpg");
+                if (fExist2.exists() == false && fExist.exists() == false) {
+                    //Se não existe na pasta, então Baixa
                     try {
-                        URL url = new URL(images[i][1]);
-                        BufferedInputStream stream = new BufferedInputStream(url.openStream(), BUFFER_SIZE);
-                        BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(nomeArquivo));
-                        byte buf[] = new byte[BUFFER_SIZE];
-                        int numBytesRead;
-                        do {
-                            numBytesRead = stream.read(buf);
-                            if (numBytesRead > 0) {
-                                fos.write(buf, 0, numBytesRead);
-                            }
-                        } while (numBytesRead > 0);
-                        fos.flush();
-                        fos.close();
-                        stream.close();
-                        buf = null;
-
+                        URL url = new URL(image[1]);
+                        byte[] buf;
+                        try (BufferedInputStream stream = new BufferedInputStream(url.openStream(), BUFFER_SIZE); 
+                            BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(nomeArquivo))) {
+                            buf = new byte[BUFFER_SIZE];
+                            int numBytesRead;
+                            do {
+                                numBytesRead = stream.read(buf);
+                                if (numBytesRead > 0) {
+                                    fos.write(buf, 0, numBytesRead);
+                                }
+                            } while (numBytesRead > 0);
+                            fos.flush();
+                        }
+                        
                         fExist.renameTo(new File(fExist.getPath().replace("_baixando.jpg", ".jpg")));
-                    } catch (FileNotFoundException exf) {
+                    }catch (FileNotFoundException exf) {
                         System.out.println("importPhotos: " + exf.getMessage());
                     }
-
                 }
             }
             return true;
         } catch (MalformedURLException e1) {
-            // TODO Auto-generated catch block  
-            e1.printStackTrace();
-        } catch (Exception e) {
-            // TODO Auto-generated catch block  
-            e.printStackTrace();
+       
+        } catch (IOException e) {
+        
         }
         return false;
     }
@@ -98,9 +92,9 @@ public class Instagram {
             File dir = new File(pathDirectoryImages);
             if (dir.isDirectory()) {
                 File arquivos[] = dir.listFiles();
-                for (int i = 0; i < arquivos.length; i++) {
-                    if (arquivos[i].getName().indexOf(".jpg") > 0 || arquivos[i].getName().indexOf(".JPG") > 0) {
-                        SimpleDoc doc = new SimpleDoc(new PrintObject(arquivos[i]), flavor, null);
+                for (File arquivo : arquivos) {
+                    if (arquivo.getName().indexOf(".jpg") > 0 || arquivo.getName().indexOf(".JPG") > 0) {
+                        SimpleDoc doc = new SimpleDoc(new PrintObject(arquivo), flavor, null);
                         job.print(doc, null);
                     }
                 }

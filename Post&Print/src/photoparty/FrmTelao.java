@@ -4,7 +4,9 @@ import classes.Photo;
 import classes.Webservice;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImagingOpException;
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -31,7 +33,7 @@ public class FrmTelao extends javax.swing.JFrame {
     public FrmTelao() {
         initComponents();
         ws = new Webservice();
-        listaPhotos = new ArrayList<Photo>();
+        listaPhotos = new ArrayList<>();
     }
 
     @SuppressWarnings("unchecked")
@@ -149,7 +151,7 @@ public class FrmTelao extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-        // TODO add your handling code here:
+       
         System.out.println("Abriu Janela");
         //initTimer();
 
@@ -157,6 +159,7 @@ public class FrmTelao extends javax.swing.JFrame {
 
     class RemindTask extends TimerTask {
 
+        @Override
         public void run() {
             System.out.println("Entrou no Run");
             File dir = new File(dirFotosTelao + hashtag + "/");
@@ -168,8 +171,8 @@ public class FrmTelao extends javax.swing.JFrame {
                 if (arquivos.length > 0) {
                     if (arquivos[current_image].getName().indexOf(".jpg") > 0 || arquivos[current_image].getName().indexOf(".JPG") > 0) {
                         ImageIcon image;
-                        ImageIcon imageUser = null;
-                        Photo photo = null;
+                        ImageIcon imageUser;
+                        Photo photo = new Photo();
                         String[] info;
                         try {
                             info = arquivos[current_image].getName().split("-");
@@ -233,16 +236,17 @@ public class FrmTelao extends javax.swing.JFrame {
                 lblLogoEvento.setPreferredSize(new Dimension(empresa_width, empresa_height));
                 lblLogoEvento.setSize(empresa_width, empresa_height);
                 lblLogoEvento.setIcon(new ImageIcon(empresa_logo));
-            } catch (Exception e) {
                 lblLogoEvento.setText(pathLogoEvento);
+                
+            } catch (ImagingOpException | IOException | IllegalArgumentException e) {
+                
             }
 
         }
     }
 
     private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
-        // TODO add your handling code here:
-
+       
     }//GEN-LAST:event_formWindowActivated
 
     /**
@@ -273,10 +277,8 @@ public class FrmTelao extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new FrmTelao().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new FrmTelao().setVisible(true);
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -4,6 +4,7 @@ import classes.Event;
 import classes.Photo;
 import classes.Webservice;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,7 +32,7 @@ public class FrmEvent extends javax.swing.JDialog {
         try {
 
             ImageIcon image = new ImageIcon(ImageIO.read(new URL("http://distilleryimage0.ak.instagram.com/72e9204a3c1311e3bc2222000a1cbcce_7.jpg")));
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             Logger.getLogger(FrmEvent.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -525,9 +526,7 @@ public class FrmEvent extends javax.swing.JDialog {
     }//GEN-LAST:event_txtHashTagFocusLost
 
     private void txtNomeCaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_txtNomeCaretUpdate
-        // TODO add your handling code here:
-
-
+      
     }//GEN-LAST:event_txtNomeCaretUpdate
 
     private void btnImportMarca1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImportMarca1ActionPerformed
@@ -545,7 +544,7 @@ public class FrmEvent extends javax.swing.JDialog {
 
                 updatePreview();
 
-            } catch (Exception ex) {
+            } catch (IOException ex) {
                 System.out.println("problem accessing file" + file.getAbsolutePath());
             }
         } else {
@@ -554,16 +553,16 @@ public class FrmEvent extends javax.swing.JDialog {
     }//GEN-LAST:event_btnImportMarcaActionPerformed
 
     private void chkAutomaticActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkAutomaticActionPerformed
-        // TODO add your handling code here:
+      
     }//GEN-LAST:event_chkAutomaticActionPerformed
 
     private void cmbTemplateItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbTemplateItemStateChanged
-        // TODO add your handling code here:
+      
 
     }//GEN-LAST:event_cmbTemplateItemStateChanged
 
     private void txtNomeFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtNomeFocusLost
-        // TODO add your handling code here:
+       
         lblTexto2.setText(txtNome.getText());
         updatePreview();
     }//GEN-LAST:event_txtNomeFocusLost
@@ -598,11 +597,11 @@ public class FrmEvent extends javax.swing.JDialog {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void txtNomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNomeActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_txtNomeActionPerformed
 
     private void cmbTemplateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbTemplateActionPerformed
-        // TODO add your handling code here:
+      
     }//GEN-LAST:event_cmbTemplateActionPerformed
 
     private void updatePreview() {
@@ -641,18 +640,15 @@ public class FrmEvent extends javax.swing.JDialog {
         //</editor-fold>
 
         /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                FrmEvent dialog = new FrmEvent(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            FrmEvent dialog = new FrmEvent(new javax.swing.JFrame(), true);
+            dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                @Override
+                public void windowClosing(java.awt.event.WindowEvent e) {
+                    System.exit(0);
+                }
+            });
+            dialog.setVisible(true);
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables

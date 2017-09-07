@@ -43,10 +43,10 @@ public class Webservice {
                 photo.foto_usuario = (String) json.getJSONObject("user").get("profile_picture").toString();
                 try {
                     photo.description = (String) json.getJSONObject("caption").get("text").toString();
-                } catch (Exception ex) {
+                } catch (JSONException ex) {
                     System.out.println("Caracter especial no caption");
                 }
-            } catch (Exception e) {
+            } catch (JSONException e) {
                 System.out.println("Erro WS: " + e.getMessage() + " -- " + response);
             }
         } else {
@@ -57,7 +57,7 @@ public class Webservice {
     }
 
     public ArrayList<Photo> getListPhotos(String tag) {
-        ArrayList<Photo> lista = new ArrayList<Photo>();
+        ArrayList<Photo> lista = new ArrayList<>();
         String response = this.request(urlTagsRecent.replace("[myTag]", tag), "", "GET");
         if (!response.trim().equals("")) {
             try {
@@ -73,12 +73,12 @@ public class Webservice {
                     photo.foto_usuario = (String) json.getJSONObject("user").get("profile_picture").toString();
                     try {
                         photo.description = (String) json.getJSONObject("caption").get("text").toString();
-                    } catch (Exception ex) {
+                    } catch (JSONException ex) {
                         System.out.println("Caracter especial no caption");
                     }
                     lista.add(photo);
                 }
-            } catch (Exception e) {
+            } catch (JSONException e) {
                 System.out.println("Erro WS: " + e.getMessage());
             }
         } else {
@@ -116,7 +116,7 @@ public class Webservice {
                         return jsonArray;
                     }
                 }
-            } catch (Exception e) {
+            } catch (JSONException e) {
                 System.out.println("Erro WS: " + e.getMessage());
             }
         } else {
@@ -133,7 +133,7 @@ public class Webservice {
                 JSONArray jsonArray = new JSONArray("[" + response + "]");
                 JSONObject json = jsonArray.optJSONObject(0);
                 return json;
-            } catch (Exception e) {
+            } catch (JSONException e) {
                 System.out.println("Erro WS: " + e.getMessage());
             }
         } else {
@@ -159,7 +159,7 @@ public class Webservice {
                 JSONArray data = jsonArray.getJSONObject(0).getJSONArray("result");
                 JSONObject json = data.getJSONObject(0);
                 return json;
-            } catch (Exception e) {
+            } catch (JSONException e) {
                 System.out.println("Erro WS: " + e.getMessage());
             }
         } else {
@@ -189,7 +189,7 @@ public class Webservice {
 
                 }
                 return lista;
-            } catch (Exception e) {
+            } catch (JSONException e) {
                 System.out.println("Erro WS: " + e.getMessage());
             }
         } else {
@@ -211,7 +211,7 @@ public class Webservice {
                     msgError = json.get("error").toString();
                 }
             }
-        } catch (Exception e) {
+        } catch (JSONException e) {
             System.out.println("Erro WS: " + e.getMessage());
         }
         return false;
@@ -231,7 +231,7 @@ public class Webservice {
                     msgError = json.get("error").toString();
                 }
             }
-        } catch (Exception e) {
+        } catch (JSONException e) {
             System.out.println("Erro WS: " + e.getMessage());
         }
         return false;
@@ -259,31 +259,26 @@ public class Webservice {
             urlConnection.setReadTimeout(10000);
             if (method.equals("POST")) {
 
-                DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream());
-                wr.writeBytes(params);
-                wr.flush();
-                wr.close();
+                try (DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream())) {
+                    wr.writeBytes(params);
+                    wr.flush();
+                }
             }
 
             if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                InputStream in = new BufferedInputStream(
-                        urlConnection.getInputStream());
-
-                BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(in,
-                                "UTF-8"), TAM_MAX_BUFFER);
-
-                StringBuilder builder = new StringBuilder();
-
-                for (String line = null; (line = reader.readLine()) != null;) {
-                    builder.append(line).append("\n");
+                try (InputStream in = new BufferedInputStream(
+                        urlConnection.getInputStream()); 
+                        BufferedReader reader = new BufferedReader(
+                                new InputStreamReader(in,
+                                        "UTF-8"), TAM_MAX_BUFFER)) {
+                    
+                    StringBuilder builder = new StringBuilder();
+                    
+                    for (String line; (line = reader.readLine()) != null;) {
+                        builder.append(line).append("\n");
+                    }
+                    resultado = builder.toString();
                 }
-
-                resultado = builder.toString();
-
-                reader.close();
-                in.close();
-
             } else {
                 System.out.println("ResponseCode: " + urlConnection.getResponseMessage());
             }

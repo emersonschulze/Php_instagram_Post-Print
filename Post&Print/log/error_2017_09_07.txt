@@ -1,0 +1,3 @@
+17:23:14 api.instagram.com
+17:23:14 api.instagram.com
+17:24:59 connect timed out

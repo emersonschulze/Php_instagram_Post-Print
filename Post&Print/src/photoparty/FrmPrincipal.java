@@ -65,7 +65,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private String dirFotosImpressas = "FotosImpressas/";
     private String dirFotosTelao = "FotosTelao/";
 
-    private List<String> listaFotosBaixadas;
+    private List<String> listaFotos;
 
     private String[] printsSelecteds;
     private int totPrints = 0;
@@ -76,6 +76,9 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private boolean automatico = false;
     private boolean temTelao = false;
     private boolean temImpressao = false;
+    private int qtdeBaixadas = 0;
+    private int qtdeTelao = 0;
+    private int qtdeUtilizadas = 0;
     private int qtdeImpressas = 0;
     private int totFotos = 0;
 
@@ -105,8 +108,8 @@ public class FrmPrincipal extends javax.swing.JFrame {
         evento = new Event();
         //insta = new Instagram();
 
-        listaFotosBaixadas = new ArrayList<String>();
-
+        listaFotos = new ArrayList<>();
+       
         File dirEnviadas = new File(dirFotosEnviadas);
         if (dirEnviadas.exists() == false) {
             dirEnviadas.mkdir();
@@ -128,10 +131,12 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
         String[] colunas = new String[]{"Foto", "Nome"};
         modelTblBaixadas = new DefaultTableModel(null, colunas) {
+            @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
 
+            @Override
             public Class getColumnClass(int column) {
                 if (column == 0) {
                     return ImageIcon.class;
@@ -145,6 +150,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         tableFotosBaixadas.getColumnModel().getColumn(1).setPreferredWidth(350);
 
         tableFotosBaixadas.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     int row = tableFotosBaixadas.getSelectedRow();
@@ -157,13 +163,19 @@ public class FrmPrincipal extends javax.swing.JFrame {
                         obj[2] = "IMPRIMINDO";
                         modelTblImpressas.addRow(obj);
                         sendToPrint(obj[1].toString());
+                        qtdeImpressas++;
+                        lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
                     }
                     if (temTelao) {
                         obj[2] = "TELÃO";
                         modelTblTelao.addRow(obj);
+                        qtdeTelao++;
+                        lbQtdTelao.setText(String.valueOf(qtdeTelao));
                     }
 
                     modelTblBaixadas.removeRow(row);
+                    qtdeUtilizadas++;
+                    lbTotalUtilizadas.setText(String.valueOf(qtdeUtilizadas));
                 }
             }
         });
@@ -183,6 +195,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
         tabelaFotosImpressas.addMouseListener(new MouseAdapter() {
 
+            @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     int row = tabelaFotosImpressas.getSelectedRow();
@@ -198,6 +211,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
         tblEvento.addMouseListener(new MouseAdapter() {
 
+            @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2 && tblEvento.isEnabled() == true) {
                     JTable target = (JTable) e.getSource();
@@ -223,112 +237,89 @@ public class FrmPrincipal extends javax.swing.JFrame {
         try {
             String outputDirectory = dirFotosTelao + hashtag + "/";
 
-            File dirTelao = new File(outputDirectory);
-            if (dirTelao.exists() == false) {
-                dirTelao.mkdir();
-            }
-
             File dir = new File(outputDirectory);
             if (dir.isDirectory()) {
                 File arquivos[] = dir.listFiles();
                 ImageIcon image;
-                for (int i = 0; i < arquivos.length; i++) {
-                    if (arquivos[i].getName().indexOf(".jpg") > 0 || arquivos[i].getName().indexOf(".JPG") > 0) {
-                        if (listaFotosBaixadas.contains(arquivos[i].getName()) == false) {
-                            String pathFile = arquivos[i].getAbsolutePath();
+                for (File arquivo : arquivos) {
+                    if (arquivo.getName().indexOf(".jpg") > 0 || arquivo.getName().indexOf(".JPG") > 0) {
+                        if (listaFotos.contains(arquivo.getName()) == false) {
+                            String pathFile = arquivo.getAbsolutePath();
                             image = new ImageIcon(pathFile);
                             Image scaledImage = image.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
                             image.setImage(scaledImage);
                             Object[] obj = new Object[3];
                             obj[0] = image;
-                            obj[1] = arquivos[i].getName();
-
-                            listaFotosBaixadas.add(arquivos[i].getName());
+                            obj[1] = arquivo.getName();
+                            qtdeTelao++;
+                            listaFotos.add(arquivo.getName());
                             modelTblTelao.addRow(obj);
-
+                            lbQtdTelao.setText(String.valueOf(qtdeTelao));
                         }
                     }
                 }
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+           
         }
     }
 
-    private void loadPrinteds() {
+    private void loadFotosImpressas() {
         try {
-            qtdeImpressas = 0;
             String outputDirectory = dirFotosImpressas + hashtag + "/";
-
-            File dirImpressas = new File(outputDirectory);
-            if (dirImpressas.exists() == false) {
-                dirImpressas.mkdir();
-            }
 
             File dir = new File(outputDirectory);
             if (dir.isDirectory()) {
                 File arquivos[] = dir.listFiles();
-                Arrays.sort(arquivos, new Comparator() {
-                    public int compare(Object o1, Object o2) {
-                        if (((File) o1).lastModified() > ((File) o2).lastModified()) {
-                            return +1;
-                        } else if (((File) o1).lastModified() < ((File) o2).lastModified()) {
-                            return -1;
-                        } else {
-                            return 0;
-                        }
+                Arrays.sort(arquivos, (Object o1, Object o2) -> {
+                    if (((File) o1).lastModified() > ((File) o2).lastModified()) {
+                        return +1;
+                    } else if (((File) o1).lastModified() < ((File) o2).lastModified()) {
+                        return -1;
+                    } else {
+                        return 0;
                     }
                 });
                 ImageIcon image;
-                for (int i = 0; i < arquivos.length; i++) {
-                    if (arquivos[i].getName().indexOf(".jpg") > 0 || arquivos[i].getName().indexOf(".JPG") > 0) {
-                        if (listaFotosBaixadas.contains(arquivos[i].getName()) == false) {
-
-                            String pathFile = arquivos[i].getAbsolutePath();
-
+                for (File arquivo : arquivos) {
+                    if (arquivo.getName().indexOf(".jpg") > 0 || arquivo.getName().indexOf(".JPG") > 0) {
+                        if (listaFotos.contains(arquivo.getName()) == false) {
+                            String pathFile = arquivo.getAbsolutePath();
                             String imagePath = pathFile.replaceAll("FotosImpressas", "FotosEnviadas");
                             image = new ImageIcon(imagePath);
                             Image scaledImage = image.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
                             image.setImage(scaledImage);
                             Object[] obj = new Object[3];
                             obj[0] = image;
-                            obj[1] = arquivos[i].getName();
+                            obj[1] = arquivo.getName();
                             obj[2] = "IMPRESSA";
-
                             qtdeImpressas++;
-                            listaFotosBaixadas.add(arquivos[i].getName());
+                            lbQtdImpressas.setText(String.valueOf(qtdeImpressas));
+                            listaFotos.add(arquivo.getName());
                             modelTblImpressas.addRow(obj);
-                            modelTblBaixadas.removeRow(obj.hashCode());
-                            ;
-//                            modelTblImpressas.setRowColour(modelTblImpressas.getRowCount()-1, Color.GREEN);
+                            modelTblBaixadas.removeRow(Arrays.hashCode(obj));
+                            lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
                         }
                     }
                 }
             }
 
             lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
-
         } catch (Exception e) {
-            e.printStackTrace();
+           
         }
-
     }
 
-    private void loadNaFila() {
+    private void loadFotosAImprimir() {
         try {
-            //qtdeImpressas = 0;
             String outputDirectory = dirFotosFila + hashtag + "/";
-
-            File dirImpressas = new File(outputDirectory);
-            if (dirImpressas.exists() == false) {
-                dirImpressas.mkdir();
-            }
-
+           
             File dir = new File(outputDirectory);
             if (dir.isDirectory()) {
                 File arquivos[] = dir.listFiles();
-                Arrays.sort(arquivos, new Comparator() {
+                Arrays.sort(arquivos, new Comparator<Object>() {
+                    @Override
                     public int compare(Object o1, Object o2) {
                         if (((File) o1).lastModified() > ((File) o2).lastModified()) {
                             return +1;
@@ -340,108 +331,87 @@ public class FrmPrincipal extends javax.swing.JFrame {
                     }
                 });
                 ImageIcon image;
-                for (int i = 0; i < arquivos.length; i++) {
-                    if (arquivos[i].getName().indexOf(".jpg") > 0 || arquivos[i].getName().indexOf(".JPG") > 0) {
-                        if (listaFotosBaixadas.contains(arquivos[i].getName()) == false) {
-                            String pathFile = arquivos[i].getAbsolutePath();
-
+                for (File arquivo : arquivos) {
+                    if (arquivo.getName().indexOf(".jpg") > 0 || arquivo.getName().indexOf(".JPG") > 0) {
+                        if (listaFotos.contains(arquivo.getName()) == false) {
+                            String pathFile = arquivo.getAbsolutePath();
                             String imagePath = pathFile.replaceAll("FotosFila", "FotosEnviadas");
                             image = new ImageIcon(imagePath);
                             Image scaledImage = image.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
                             image.setImage(scaledImage);
                             Object[] obj = new Object[3];
                             obj[0] = image;
-                            obj[1] = arquivos[i].getName();
-
-                            //qtdeImpressas++;
-                            listaFotosBaixadas.add(arquivos[i].getName());
+                            obj[1] = arquivo.getName();
+                            obj[2] = "IMPRIMIR";
+                            qtdeImpressas++;
+                            listaFotos.add(arquivo.getName());
                             modelTblImpressas.addRow(obj);
-
-                            //                        modelTblImpressas.setRowColour(modelTblImpressas.getRowCount()-1, Color.GREEN);
-                        } else {
-                            //arquivos[i].delete();
+                            lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
                         }
                     }
                 }
             }
 
-            //lblQtdeFotos.setText("Fotos Impressas: "+String.valueOf(qtdeImpressas)+" / "+totFotos);
+            lbQtdImpressas.setText(String.valueOf(qtdeImpressas)+" / "+totFotos);
         } catch (Exception e) {
-            e.printStackTrace();
         }
-
     }
 
     private void startPrint() {
 
-        ActionListener action = new ActionListener() {
-            public void actionPerformed(@SuppressWarnings("unused") java.awt.event.ActionEvent e) {
-                //TimerTest.this.label.setText((number++) + "");
-                //insta.importPhotosInstagram(hashtag, dirFotosEnviadas);
+        buscaFotosInstagram();
 
-                //thread.start();
-                ProcessoThread thread = new ProcessoThread();
-                thread.action = "importFotos";
-                thread.start();
-
-                loadFotosBaixadas();
-            }
-        };
-        timer = new Timer(12000, action);//Importa fotos do instagram a cada 10 segundosx
-        timer.start();
-
-        ActionListener action2 = new ActionListener() {
-            public void actionPerformed(@SuppressWarnings("unused") java.awt.event.ActionEvent e) {
-                //System.out.println("Entrou no timer");
-
-                (new Thread() {
-                    public void run() {
-                        try {
-                            Thread.sleep(1000);
-                            if (tableFotosBaixadas.getRowCount() > 0) {
-                                if (tableFotosBaixadas.getValueAt(0, 1).toString().length() > 0) {
-                                    //System.out.println("Mandou para impressora");
-
-                                    final Object[] obj = new Object[3];
-                                    obj[0] = tableFotosBaixadas.getValueAt(0, 0);
-                                    obj[1] = tableFotosBaixadas.getValueAt(0, 1).toString();
-                                    if (temImpressao == true) {
-                                        obj[2] = "NA FILA";
-                                    } else {
-                                        obj[2] = "NO TELÃO";
-                                    }
-
-                                    if (modelTblBaixadas.getRowCount() > 0) {
-                                        modelTblBaixadas.removeRow(0);
-                                    }
-                                    //Thread.sleep(1000);
-                                    if (btnStopEvento.getText().equals("Parar Evento")) {
-                                        boolean existe = false;
-                                        int tot_impressas = modelTblImpressas.getRowCount();
-                                        for (int x = 0; x < tot_impressas; x++) {
-                                            if (modelTblImpressas.getValueAt(x, 1).equals(obj[1].toString())) {
-                                                existe = true;
-                                            }
+        ActionListener action2 = (@SuppressWarnings("unused") java.awt.event.ActionEvent e) -> {
+            //System.out.println("Entrou no timer");
+            
+            (new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(1000);
+                        if (tableFotosBaixadas.getRowCount() > 0) {
+                            if (tableFotosBaixadas.getValueAt(0, 1).toString().length() > 0) {
+                                //System.out.println("Mandou para impressora");
+                                
+                                final Object[] obj = new Object[3];
+                                obj[0] = tableFotosBaixadas.getValueAt(0, 0);
+                                obj[1] = tableFotosBaixadas.getValueAt(0, 1).toString();
+                                if (temImpressao == true) {
+                                    obj[2] = "NA FILA";
+                                } else {
+                                    obj[2] = "NO TELÃO";
+                                }
+                                
+                                if (modelTblBaixadas.getRowCount() > 0) {
+                                    modelTblBaixadas.removeRow(0);
+                                }
+                                //Thread.sleep(1000);
+                                if (btnStartStopEvento.getText().equals("Parar Evento")) {
+                                    boolean existe = false;
+                                    int tot_impressas = modelTblImpressas.getRowCount();
+                                    for (int x = 0; x < tot_impressas; x++) {
+                                        if (modelTblImpressas.getValueAt(x, 1).equals(obj[1].toString())) {
+                                            existe = true;
                                         }
-                                        if (existe == false && hashtag != null && timerAutomatico.isRunning()) {
-                                            sendToPrint(obj[1].toString());
-                                            modelTblImpressas.addRow(obj);
-                                            //System.out.println("Adicionou a lista de Impressão: "+obj[1].toString());
-                                        }
-                                    } else {
-
                                     }
-                                    if (modelTblImpressas.getRowCount() > 0) {
-                                        modelTblImpressas.removeRow(0);
+                                    if (existe == false && hashtag != null && timerAutomatico.isRunning()) {
+                                        sendToPrint(obj[1].toString());
+                                        modelTblImpressas.addRow(obj);
+                                        //System.out.println("Adicionou a lista de Impressão: "+obj[1].toString());
                                     }
+                                } else {
+                                    
+                                }
+                                if (modelTblImpressas.getRowCount() > 0) {
+                                    modelTblImpressas.removeRow(0);
                                 }
                             }
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
                         }
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                }).start();
-            }
+                }
+            }).start();
         };
 
         timerAutomatico = new Timer(10000, action2);
@@ -450,16 +420,27 @@ public class FrmPrincipal extends javax.swing.JFrame {
             timerAutomatico.start();
         }
 
-        ActionListener action3 = new ActionListener() {
-            public void actionPerformed(@SuppressWarnings("unused") java.awt.event.ActionEvent e) {
-
-            }
+        ActionListener action3 = (@SuppressWarnings("unused") java.awt.event.ActionEvent e) -> {
         };
         timerPrinter = new Timer(TIME_HANDLER, action3);
         timerPrinter.start();
 
         SLEEP = false;
         lastPrinterPrinted = 0;
+    }
+
+    private void buscaFotosInstagram() {
+        ProcessoThread thread = new ProcessoThread();
+        thread.action = "importFotos";
+        thread.start();
+        
+        ActionListener action;
+        action = (@SuppressWarnings("unused") java.awt.event.ActionEvent e) -> {
+            loadFotosBaixadas();
+        };
+        
+        timer = new Timer(12000, action);//Importa fotos do instagram a cada 10 segundosx
+        timer.start();
     }
 
     private void stopPrint() {
@@ -542,7 +523,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
             for (int i = 0; i < arquivos.length; i++) {
                 if (arquivos[i].getName().indexOf(".jpg") > 0 || arquivos[i].getName().indexOf(".JPG") > 0) {
                     if (arquivos[i].getName().indexOf("_baixando.jpg") < 0) {
-                        if (listaFotosBaixadas.contains(arquivos[i].getName()) == false) {
+                        if (listaFotos.contains(arquivos[i].getName()) == false) {
                             ImageIcon image;
                             try {
                                 image = new ImageIcon(arquivos[i].getAbsolutePath());
@@ -561,8 +542,10 @@ public class FrmPrincipal extends javax.swing.JFrame {
                                     }
                                 }
                                 if (existe == false) {
+                                    qtdeBaixadas++;
                                     modelTblBaixadas.addRow(obj);
-                                    listaFotosBaixadas.add(arquivos[i].getName());
+                                    listaFotos.add(arquivos[i].getName());
+                                    lbQtdBaixadas.setText(String.valueOf(qtdeBaixadas));
                                 }
                             } catch (Exception ex) {
                                 Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
@@ -597,13 +580,15 @@ public class FrmPrincipal extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tblEvento = new javax.swing.JTable();
         btnAddEvento = new javax.swing.JButton();
-        btnStopEvento = new javax.swing.JButton();
+        btnStartStopEvento = new javax.swing.JButton();
         pnlImpressoes = new javax.swing.JPanel();
         labelBaixadas = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         tableFotosBaixadas = new javax.swing.JTable();
         jLabel5 = new javax.swing.JLabel();
         lbQtdBaixadas = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        lbTotalUtilizadas = new javax.swing.JLabel();
         labelImpresa = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         tabelaFotosImpressas = new javax.swing.JTable();
@@ -658,11 +643,11 @@ public class FrmPrincipal extends javax.swing.JFrame {
             }
         });
 
-        btnStopEvento.setText("Iniciar Evento");
-        btnStopEvento.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        btnStopEvento.addActionListener(new java.awt.event.ActionListener() {
+        btnStartStopEvento.setText("Iniciar Evento");
+        btnStartStopEvento.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        btnStartStopEvento.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnStopEventoActionPerformed(evt);
+                btnStartStopEventoActionPerformed(evt);
             }
         });
 
@@ -690,6 +675,10 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
         lbQtdBaixadas.setText("0");
 
+        jLabel8.setText("Utilizadas:");
+
+        lbTotalUtilizadas.setText("0");
+
         org.jdesktop.layout.GroupLayout labelBaixadasLayout = new org.jdesktop.layout.GroupLayout(labelBaixadas);
         labelBaixadas.setLayout(labelBaixadasLayout);
         labelBaixadasLayout.setHorizontalGroup(
@@ -698,14 +687,20 @@ public class FrmPrincipal extends javax.swing.JFrame {
             .add(labelBaixadasLayout.createSequentialGroup()
                 .add(jLabel5)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(lbQtdBaixadas, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(lbQtdBaixadas, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .add(jLabel8)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(lbTotalUtilizadas, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 89, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
         labelBaixadasLayout.setVerticalGroup(
             labelBaixadasLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(labelBaixadasLayout.createSequentialGroup()
                 .add(labelBaixadasLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel5)
-                    .add(lbQtdBaixadas))
+                    .add(lbQtdBaixadas)
+                    .add(jLabel8)
+                    .add(lbTotalUtilizadas))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 281, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -782,7 +777,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
         });
         tabelaFotosTelao.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
         tabelaFotosTelao.setRowHeight(80);
-        tabelaFotosTelao.setRowSelectionAllowed(true);
         tabelaFotosTelao.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane6.setViewportView(tabelaFotosTelao);
         tabelaFotosTelao.getAccessibleContext().setAccessibleParent(pnlImpressoes);
@@ -832,7 +826,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 .add(3, 3, 3))
         );
 
-        labelBaixadas.getAccessibleContext().setAccessibleName("Fotos Instagram");
         labelTelao.getAccessibleContext().setAccessibleName("Fotos Telao");
 
         btnExibirTelao.setText("Exibir Telão");
@@ -849,7 +842,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         jLabel4.setText("Versão 3.0");
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Selecionar Impressora"));
-        jPanel3.setLayout(new java.awt.GridLayout());
+        jPanel3.setLayout(new java.awt.GridLayout(1, 0));
 
         jPanel3.add(comboImpressoras);
 
@@ -876,7 +869,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .add(btnExibirTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 122, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(btnStopEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 115, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(btnStartStopEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 115, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(btnAddEvento))
                             .add(pnlImpressoes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -916,7 +909,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                         .add(11, 11, 11)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(btnAddEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(btnStopEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(btnStartStopEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(btnExibirTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                     .add(layout.createSequentialGroup()
                         .add(60, 60, 60)
@@ -930,7 +923,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAddEventoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddEventoActionPerformed
-        // TODO add your handling code here:
+        
         FrmEvent frm = new FrmEvent(this, true);
         frm.setLocationRelativeTo(null);
         frm.setVisible(true);
@@ -938,41 +931,34 @@ public class FrmPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAddEventoActionPerformed
 
     private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
-        // TODO add your handling code here:
+       
         this.loadEventos();
         if (frame != null) {
             frame.toFront();
         }
     }//GEN-LAST:event_formWindowActivated
 
-    private void btnStopEventoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStopEventoActionPerformed
-        if (btnStopEvento.getText().equals("Iniciar Evento")) {
+    private void btnStartStopEventoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartStopEventoActionPerformed
+        if (btnStartStopEvento.getText().equals("Iniciar Evento")) {
             if (preparaEvento()) {
-                loadPrinteds();
-                loadNaFila();
-                loadFotosTelao();
-
-                ProcessoThread thread = new ProcessoThread();
-                thread.action = "importFotos";
-                thread.start();
-
+                buscaFotosInstagram();
                 loadFotosBaixadas();
+                loadFotosAImprimir();
+                loadFotosImpressas();
+                loadFotosTelao();
             }
-        } else if (btnStopEvento.getText().equals("Parar Evento")) {
+        } else if (btnStartStopEvento.getText().equals("Parar Evento")) {
             paraEvento();
-
         }
-    }//GEN-LAST:event_btnStopEventoActionPerformed
+    }//GEN-LAST:event_btnStartStopEventoActionPerformed
 
     private boolean preparaEvento() {
-
         if (tblEvento.getSelectedRow() < 0) {
             JOptionPane.showMessageDialog(null, "Por favor, selecione um evento na tabela acima");
             return false;
         }
 
         int row = tblEvento.getSelectedRow();
-
         if (evento.loadEvent(tblEvento.getValueAt(row, 0).toString()) == false) {
             return false;
         }
@@ -1000,11 +986,11 @@ public class FrmPrincipal extends javax.swing.JFrame {
         totFotos = Integer.parseInt(tblEvento.getValueAt(row, 7).toString());
         lbQtdImpressas.setText(tblEvento.getValueAt(row, 7).toString());
 
-        btnStopEvento.setText("Parar Evento");
-        btnStopEvento.setBackground(Color.RED);
-        btnStopEvento.setForeground(Color.WHITE);
-        btnStopEvento.setOpaque(true);
-        btnStopEvento.setBorderPainted(false);
+        btnStartStopEvento.setText("Parar Evento");
+        btnStartStopEvento.setBackground(Color.RED);
+        btnStartStopEvento.setForeground(Color.WHITE);
+        btnStartStopEvento.setOpaque(true);
+        btnStartStopEvento.setBorderPainted(false);
 
         lblNomeEvento.setText(tblEvento.getValueAt(row, 1).toString());
         hashtag = tblEvento.getValueAt(row, 2).toString();
@@ -1044,54 +1030,28 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
     private boolean paraEvento() {
         btnExibirTelao.setEnabled(false);
-        btnStopEvento.setText("Iniciar Evento");
+        btnStartStopEvento.setText("Iniciar Evento");
 
-        btnStopEvento.setBackground(new Color(238, 238, 238));
-        btnStopEvento.setForeground(Color.BLACK);
-        btnStopEvento.setOpaque(false);
-        btnStopEvento.setBorderPainted(true);
+        btnStartStopEvento.setBackground(new Color(238, 238, 238));
+        btnStartStopEvento.setForeground(Color.BLACK);
+        btnStartStopEvento.setOpaque(false);
+        btnStartStopEvento.setBorderPainted(true);
 
         lblNomeEvento.setText("Nome do Evento");
         hashtag = null;
-
-        tblEvento.setEnabled(true);
-
-        qtdeImpressas = 0;
-        lbQtdImpressas.setText("Fotos Impressas: ");
-
-        stopPrint();
-
         automatico = false;
-
-        listaFotosBaixadas.clear();
-        if (modelTblBaixadas != null) {
-            if (modelTblBaixadas.getRowCount() > 0) {
-                for (int i = modelTblBaixadas.getRowCount() - 1; i > -1; i--) {
-                    modelTblBaixadas.removeRow(i);
-                }
-            }
-        }
-        if (tabelaFotosImpressas != null) {
-            if (modelTblImpressas.getRowCount() > 0) {
-                for (int i = modelTblImpressas.getRowCount() - 1; i > -1; i--) {
-                    modelTblImpressas.removeRow(i);
-                }
-            }
-        }
-        if (tabelaFotosTelao != null) {
-            if (modelTblTelao.getRowCount() > 0) {
-                for (int i = modelTblTelao.getRowCount() - 1; i > -1; i--) {
-                    modelTblTelao.removeRow(i);
-                }
-            }
-        }
-        try {
-            File dirFila = new File(dirFotosFila + hashtag + "/");
-            dirFila.delete();
-        } catch (Exception e) {
-            System.out.println("Deleta Pasta Fila: " + e.getMessage());
-        }
-
+        tblEvento.setEnabled(true);
+        qtdeImpressas = 0;
+        qtdeBaixadas = 0;
+        qtdeTelao = 0;
+        lbQtdBaixadas.setText("0");
+        lbQtdTelao.setText("0");
+        lbQtdImpressas.setText("0");
+        lbTotalUtilizadas.setText("0");
+        limpaTabelas();
+        stopPrint();
+       
+         
         if (frame != null) {
             frame.setVisible(false);
             if (frame.timerPhotos != null) {
@@ -1102,12 +1062,42 @@ public class FrmPrincipal extends javax.swing.JFrame {
         return true;
     }
 
+    private void limpaTabelas() {
+       
+        if (modelTblBaixadas != null) {
+            if (modelTblBaixadas.getRowCount() > 0) {
+                for (int i = modelTblBaixadas.getRowCount() - 1; i > -1; i--) {
+                    modelTblBaixadas.removeRow(i);
+                }
+            }
+        }
+        if (modelTblImpressas != null) {
+            if (modelTblImpressas.getRowCount() > 0) {
+                for (int i = modelTblImpressas.getRowCount() - 1; i > -1; i--) {
+                    modelTblImpressas.removeRow(i);
+                }
+            }
+        }
+        if (modelTblTelao != null) {
+            if (modelTblTelao.getRowCount() > 0) {
+                for (int i = modelTblTelao.getRowCount() - 1; i > -1; i--) {
+                    modelTblTelao.removeRow(i);
+                }
+            }
+        }
+       
+        listaFotos.clear();
+        tabelaFotosImpressas.removeAll();
+        tabelaFotosTelao.removeAll();
+        tableFotosBaixadas.removeAll();
+    }
+
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
 
     }//GEN-LAST:event_formWindowOpened
 
     private void btnExibirTelaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExibirTelaoActionPerformed
-        // TODO add your handling code here:
+       
         try {
             setupFullScreen();
         } catch (Exception e) {
@@ -1139,61 +1129,56 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
     public void setupFullScreen() {
 
-        EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-
-                Point p1 = null;
-                Point p2 = null;
-                for (GraphicsDevice gd2 : GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()) {
-                    if (p1 == null) {
-                        p1 = gd2.getDefaultConfiguration().getBounds().getLocation();
-                    } else if (p2 == null) {
-                        p2 = gd2.getDefaultConfiguration().getBounds().getLocation();
-                        gd = gd2;
-                    }
+        EventQueue.invokeLater(() -> {
+            Point p1 = null;
+            Point p2 = null;
+            for (GraphicsDevice gd2 : GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()) {
+                if (p1 == null) {
+                    p1 = gd2.getDefaultConfiguration().getBounds().getLocation();
+                } else if (p2 == null) {
+                    p2 = gd2.getDefaultConfiguration().getBounds().getLocation();
+                    gd = gd2;
                 }
-                if (p2 == null) {
-                    p2 = p1;
-                }
-
-                if (frame == null) {
-                    frame = new FrmTelao();
-
-                }
-
-                frame.hashtag = hashtag;
-                frame.dirFotosTelao = dirFotosTelao;
-                frame.pathLogoEvento = evento.getLogo_event();
-
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-
-                InputMap im = frame.painel.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW);
-                ActionMap am = frame.painel.getActionMap();
-                im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "getMeOutOfHere");
-                am.put("getMeOutOfHere", new AbstractAction() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        try {
-                            gd.setFullScreenWindow(null);
-                        } finally {
-                            frame.setVisible(false);
-                            if (frame.timerPhotos != null) {
-                                frame.timerPhotos.cancel();
-                                frame.timerPhotos = null;
-                            }
+            }
+            if (p2 == null) {
+                p2 = p1;
+            }
+            
+            if (frame == null) {
+                frame = new FrmTelao();
+                
+            }
+            
+            frame.hashtag = hashtag;
+            frame.dirFotosTelao = dirFotosTelao;
+            frame.pathLogoEvento = evento.getLogo_event();
+            
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            
+            InputMap im = frame.painel.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW);
+            ActionMap am = frame.painel.getActionMap();
+            im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "getMeOutOfHere");
+            am.put("getMeOutOfHere", new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        gd.setFullScreenWindow(null);
+                    } finally {
+                        frame.setVisible(false);
+                        if (frame.timerPhotos != null) {
+                            frame.timerPhotos.cancel();
+                            frame.timerPhotos = null;
                         }
                     }
-                });
-
-                createFrameAtLocation(p2, frame);
-
-            }
+                }
+            });
+            
+            createFrameAtLocation(p2, frame);
         });
     }
 
-    protected void popularCombo() throws HeadlessException {
+    private void popularCombo() throws HeadlessException {
         Impressora printer = new Impressora();
         final List<String> listImpressoras = printer.detectaImpressoras();
 
@@ -1201,15 +1186,16 @@ public class FrmPrincipal extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "ATENÇÃO! Não foi encontrado uma impressora instalada ");
         }
 
-        for (String impressora : listImpressoras) {
+        listImpressoras.forEach((impressora) -> {
             comboImpressoras.addItem(impressora);
-        }
+        });
     }
 
     class ProcessoThread extends Thread {
 
         public String action;
 
+        @Override
         public void run() {
             if (action.equals("importFotos")) {
                 Instagram.importPhotosInstagram(hashtag, dirFotosEnviadas);
@@ -1269,12 +1255,8 @@ public class FrmPrincipal extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                new FrmPrincipal().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new FrmPrincipal().setVisible(true);
         });
     }
 
@@ -1282,7 +1264,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddEvento;
     private javax.swing.JButton btnExibirTelao;
-    private javax.swing.JButton btnStopEvento;
+    private javax.swing.JButton btnStartStopEvento;
     private javax.swing.JComboBox<String> comboImpressoras;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -1291,6 +1273,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
@@ -1302,6 +1285,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private javax.swing.JLabel lbQtdBaixadas;
     private javax.swing.JLabel lbQtdImpressas;
     private javax.swing.JLabel lbQtdTelao;
+    private javax.swing.JLabel lbTotalUtilizadas;
     private javax.swing.JLabel lblNomeEvento;
     private javax.swing.JPanel pnlImpressoes;
     private javax.swing.JTable tabelaFotosImpressas;

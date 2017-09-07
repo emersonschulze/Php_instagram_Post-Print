@@ -27,10 +27,12 @@ public class MyDefaultTableModel extends DefaultTableModel {
         return rowColours.get(row);
     }
 
+    @Override
     public boolean isCellEditable(int row, int column) {
         return false;
     }
 
+    @Override
     public Class getColumnClass(int column) {
         if (column == 0) {
             return ImageIcon.class;

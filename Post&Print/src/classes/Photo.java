@@ -5,8 +5,10 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImagingOpException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -79,7 +81,7 @@ public class Photo {
     public String nome_evento = "";
     public String image_evento = "";
 
-    private Webservice ws;
+    private final Webservice ws;
 
     public Photo() {
         ws = new Webservice();
@@ -241,12 +243,16 @@ public class Photo {
                     if (evento_align.equals("NORMAL")) {
                         g.drawImage(evento_logo, evento_left, evento_top, null);
                     } else {
-                        if (evento_align.equals("CENTER")) {
-                            printCenterImage(g, evento_logo, papel_width, width_evento_logo, evento_height, evento_left, evento_top);
-                        } else if (evento_align.equals("RIGHT")) {
-                            g.drawImage(evento_logo, papel_width - width_evento_logo - foto_left, evento_top, null);
-                        } else {
-                            g.drawImage(evento_logo, evento_left, evento_top, null);
+                        switch (evento_align) {
+                            case "CENTER":
+                                printCenterImage(g, evento_logo, papel_width, width_evento_logo, evento_height, evento_left, evento_top);
+                                break;
+                            case "RIGHT":
+                                g.drawImage(evento_logo, papel_width - width_evento_logo - foto_left, evento_top, null);
+                                break;
+                            default:
+                                g.drawImage(evento_logo, evento_left, evento_top, null);
+                                break;
                         }
                     }
                 } else {
@@ -339,12 +345,16 @@ public class Photo {
     }
      */
     public void setAlign(JLabel label, String align) {
-        if (align.equals("CENTER")) {
-            label.setHorizontalAlignment(JLabel.CENTER);
-        } else if (align.equals("RIGHT")) {
-            label.setHorizontalAlignment(JLabel.RIGHT);
-        } else {
-            label.setHorizontalAlignment(JLabel.LEFT);
+        switch (align) {
+            case "CENTER":
+                label.setHorizontalAlignment(JLabel.CENTER);
+                break;
+            case "RIGHT":
+                label.setHorizontalAlignment(JLabel.RIGHT);
+                break;
+            default:
+                label.setHorizontalAlignment(JLabel.LEFT);
+                break;
         }
 
     }
@@ -415,17 +425,21 @@ public class Photo {
                             lblTexto2.setSize(width_evento_logo, evento_height);
 
                             //setAlign(lblTexto2, evento_align);
-                            if (evento_align.equals("CENTER")) {
-                                printCenterLabel(lblTexto2, evento_logo, papel_width, width_evento_logo, evento_height, evento_left, evento_top);
-                            } else if (evento_align.equals("RIGHT")) {
-                                lblTexto2.setLocation(papel_width - width_evento_logo - foto_left, evento_top);
-                                lblTexto2.setIcon(new ImageIcon(evento_logo));
-                            } else {
-                                lblTexto2.setLocation(evento_left, evento_top);
-                                lblTexto2.setIcon(new ImageIcon(evento_logo));
+                            switch (evento_align) {
+                                case "CENTER":
+                                    printCenterLabel(lblTexto2, evento_logo, papel_width, width_evento_logo, evento_height, evento_left, evento_top);
+                                    break;
+                                case "RIGHT":
+                                    lblTexto2.setLocation(papel_width - width_evento_logo - foto_left, evento_top);
+                                    lblTexto2.setIcon(new ImageIcon(evento_logo));
+                                    break;
+                                default:
+                                    lblTexto2.setLocation(evento_left, evento_top);
+                                    lblTexto2.setIcon(new ImageIcon(evento_logo));
+                                    break;
                             }
 
-                        } catch (Exception e) {
+                        } catch (ImagingOpException | IOException | IllegalArgumentException e) {
                             JOptionPane.showMessageDialog(null, "As configurações desta imagem não são suportadas. Dica: abra esta imagem no paint ou photoshop e salve como PNG");
                         }
 
@@ -452,32 +466,35 @@ public class Photo {
                         lblTexto2.setFont(font2);
 
                         //setAlign(lblTexto2, evento_align);
-                        if (evento_align.equals("CENTER")) {
-                            printCenterStringLabel(lblTexto2, nome_evento, papel_width, evento_left, evento_top);
-                        } else if (evento_align.equals("RIGHT")) {
-                            System.out.println("Align RIGHT");
-                            lblTexto2.setHorizontalAlignment(JLabel.RIGHT);
-                            lblTexto2.setLocation(papel_width - width_string - foto_left, evento_top);
-                            lblTexto2.setText(nome_evento);
-                        } else {
-                            lblTexto2.setLocation(evento_left, evento_top);
-                            lblTexto2.setText(nome_evento);
-                        }
-
+                        switch (evento_align) {
+                            case "CENTER":
+                                printCenterStringLabel(lblTexto2, nome_evento, papel_width, evento_left, evento_top);
+                                break;
                         /*
                         if(evento_align.equals("NORMAL")){
-                            lblTexto2.setText(nome_evento);
-                            lblTexto2.setLocation(evento_left, evento_top);
+                        lblTexto2.setText(nome_evento);
+                        lblTexto2.setLocation(evento_left, evento_top);
                         }else{
-                            printCenterStringLabel(lblTexto2, nome_evento, papel_width, evento_left, evento_top);
+                        printCenterStringLabel(lblTexto2, nome_evento, papel_width, evento_left, evento_top);
                         }*/
+                            case "RIGHT":
+                                System.out.println("Align RIGHT");
+                                lblTexto2.setHorizontalAlignment(JLabel.RIGHT);
+                                lblTexto2.setLocation(papel_width - width_string - foto_left, evento_top);
+                                lblTexto2.setText(nome_evento);
+                                break;
+                            default:
+                                lblTexto2.setLocation(evento_left, evento_top);
+                                lblTexto2.setText(nome_evento);
+                                break;
+                        }
                     }
                 }
 
             } else {
                 System.out.println("Não achou a configuração do template");
             }
-        } catch (Exception ex) {
+        } catch (HeadlessException | ImagingOpException | IOException | IllegalArgumentException ex) {
             Logger.getLogger(Photo.class.getName()).log(Level.SEVERE, null, ex);
         }
 
@@ -531,12 +548,9 @@ public class Photo {
             }
             setDPI(metadata, DPI);
 
-            final ImageOutputStream stream = ImageIO.createImageOutputStream(output);
-            try {
+            try (ImageOutputStream stream = ImageIO.createImageOutputStream(output)) {
                 writer.setOutput(stream);
                 writer.write(metadata, new IIOImage(sourceImage, null, metadata), writeParam);
-            } finally {
-                stream.close();
             }
             break;
         }
@@ -618,7 +632,7 @@ public class Photo {
             try {
                 iomd.setFromTree(formatName, node);
             } catch (IIOInvalidTreeException e) {
-                e.printStackTrace();  //To change body of catch statement use Options | File Templates.
+               
             }
             //attach the metadata to an image
             IIOImage iioimage = new IIOImage(bi, null, iomd);
@@ -626,7 +640,7 @@ public class Photo {
                 imageWriter.setOutput(new FileImageOutputStream(new File(fileName)));
                 imageWriter.write(iioimage);
             } catch (IOException e) {
-                e.printStackTrace();
+              
             }
         }  //end if (i.hasNext()) //there's at least one ImageWriter, justuse the first one
     }  //end public static void saveImageToDisk(BufferedImage bi, int dpi,String fileName)

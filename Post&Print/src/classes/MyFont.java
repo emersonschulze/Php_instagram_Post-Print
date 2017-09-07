@@ -1,13 +1,13 @@
 package classes;
 
 import java.awt.Font;
+import java.awt.FontFormatException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * A cache of the dynamically loaded fonts found in the fonts directory.
- */
+
 public class MyFont {
 
     // Prepare a static "cache" mapping font names to Font objects.
@@ -22,7 +22,7 @@ public class MyFont {
     }
 
     public static Font getFont(String name) {
-        Font font = null;
+        Font font;
         if (cache != null) {
             if ((font = cache.get(name)) != null) {
                 return font;
@@ -32,8 +32,8 @@ public class MyFont {
         try {
             InputStream is = MyFont.class.getResourceAsStream(fName);
             font = Font.createFont(Font.TRUETYPE_FONT, is);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (FontFormatException | IOException ex) {
+           
             System.err.println(fName + " not loaded.  Using serif font.");
             font = new Font("serif", Font.PLAIN, 30);
         }
