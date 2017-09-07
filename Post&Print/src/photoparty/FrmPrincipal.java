@@ -21,11 +21,11 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
@@ -84,7 +84,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
     private GraphicsDevice gd;
 
-    private static Logger LOG = Logger.getLogger(FrmPrincipal.class.getName());
+    private static final Logger LOG = Logger.getLogger(FrmPrincipal.class.getName());
 
     private Object lock = new Object();
     private CountDownLatch waitForDevices;
@@ -318,16 +318,13 @@ public class FrmPrincipal extends javax.swing.JFrame {
             File dir = new File(outputDirectory);
             if (dir.isDirectory()) {
                 File arquivos[] = dir.listFiles();
-                Arrays.sort(arquivos, new Comparator<Object>() {
-                    @Override
-                    public int compare(Object o1, Object o2) {
-                        if (((File) o1).lastModified() > ((File) o2).lastModified()) {
-                            return +1;
-                        } else if (((File) o1).lastModified() < ((File) o2).lastModified()) {
-                            return -1;
-                        } else {
-                            return 0;
-                        }
+                Arrays.sort(arquivos, (Object o1, Object o2) -> {
+                    if (((File) o1).lastModified() > ((File) o2).lastModified()) {
+                        return +1;
+                    } else if (((File) o1).lastModified() < ((File) o2).lastModified()) {
+                        return -1;
+                    } else {
+                        return 0;
                     }
                 });
                 ImageIcon image;
@@ -472,7 +469,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
     private void sendToPrint(String nameFile) {
         Impressora printer = new Impressora();
-        Photo photo = new Photo();
+        Photo photo;
 
         try {
             //System.out.println("NOME DO ARQUIVO: "+nameFile);
@@ -480,14 +477,15 @@ public class FrmPrincipal extends javax.swing.JFrame {
             if (temTelao) {
                 String orig = dirFotosEnviadas + hashtag + "/" + nameFile;
                 String dest = dirFotosTelao + hashtag + "/" + nameFile;
-                InputStream in = new FileInputStream(orig);
-                OutputStream out = new FileOutputStream(dest);
-                byte[] buf = new byte[1024];
-                int len;
-                while ((len = in.read(buf)) > 0) {
-                    out.write(buf, 0, len);
+                OutputStream out;
+                try (InputStream in = new FileInputStream(orig)) {
+                    out = new FileOutputStream(dest);
+                    byte[] buf = new byte[1024];
+                    int len;
+                    while ((len = in.read(buf)) > 0) {
+                        out.write(buf, 0, len);
+                    }
                 }
-                in.close();
                 out.close();
             }
             if (temImpressao) {
@@ -499,7 +497,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 printer.selecionaImpressoras(comboImpressoras.getSelectedItem().toString());
                 printer.imprime(arquivo.getPath());
             }
-        } catch (Exception ex) {
+        } catch (IOException ex) {
         }
 
     }
@@ -508,32 +506,28 @@ public class FrmPrincipal extends javax.swing.JFrame {
         File dir = new File(dirFotosEnviadas + hashtag + "/");
         if (dir.isDirectory()) {
             File arquivos[] = dir.listFiles();
-            Arrays.sort(arquivos, new Comparator() {
-                public int compare(Object o1, Object o2) {
-                    if (((File) o1).lastModified() > ((File) o2).lastModified()) {
-                        return +1;
-                    } else if (((File) o1).lastModified() < ((File) o2).lastModified()) {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
+            Arrays.sort(arquivos, (Object o1, Object o2) -> {
+                if (((File) o1).lastModified() > ((File) o2).lastModified()) {
+                    return +1;
+                } else if (((File) o1).lastModified() < ((File) o2).lastModified()) {
+                    return -1;
+                } else {
+                    return 0;
                 }
             });
 
-            for (int i = 0; i < arquivos.length; i++) {
-                if (arquivos[i].getName().indexOf(".jpg") > 0 || arquivos[i].getName().indexOf(".JPG") > 0) {
-                    if (arquivos[i].getName().indexOf("_baixando.jpg") < 0) {
-                        if (listaFotos.contains(arquivos[i].getName()) == false) {
+            for (File arquivo : arquivos) {
+                if (arquivo.getName().indexOf(".jpg") > 0 || arquivo.getName().indexOf(".JPG") > 0) {
+                    if (!arquivo.getName().contains("_baixando.jpg")) {
+                        if (listaFotos.contains(arquivo.getName()) == false) {
                             ImageIcon image;
                             try {
-                                image = new ImageIcon(arquivos[i].getAbsolutePath());
+                                image = new ImageIcon(arquivo.getAbsolutePath());
                                 Image scaledImage = image.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
                                 image.setImage(scaledImage);
-
                                 Object[] obj = new Object[2];
                                 obj[0] = image;
-                                obj[1] = arquivos[i].getName();
-
+                                obj[1] = arquivo.getName();
                                 boolean existe = false;
                                 int tot_enviadas = modelTblBaixadas.getRowCount();
                                 for (int x = 0; x < tot_enviadas; x++) {
@@ -544,10 +538,10 @@ public class FrmPrincipal extends javax.swing.JFrame {
                                 if (existe == false) {
                                     qtdeBaixadas++;
                                     modelTblBaixadas.addRow(obj);
-                                    listaFotos.add(arquivos[i].getName());
+                                    listaFotos.add(arquivo.getName());
                                     lbQtdBaixadas.setText(String.valueOf(qtdeBaixadas));
                                 }
-                            } catch (Exception ex) {
+                            }catch (Exception ex) {
                                 Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
@@ -561,14 +555,12 @@ public class FrmPrincipal extends javax.swing.JFrame {
         String[][] dados = evento.listEvents();
         String[] colunas = new String[]{"Código", "Nome", "Hashtag", "Data", "Impressão", "Telão", "Automatico", "Qtde Fotos"};
         DefaultTableModel model = new DefaultTableModel(dados, colunas) {
+            @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
 
-        /*DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment( JLabel.CENTER );
-        centerRenderer.setBackground(Color.CYAN);*/
         tblEvento.setModel(model);
     }
 
@@ -1243,15 +1235,11 @@ public class FrmPrincipal extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(FrmPrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(FrmPrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(FrmPrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(FrmPrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        
         //</editor-fold>
 
         /* Create and display the form */
