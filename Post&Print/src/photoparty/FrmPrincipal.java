@@ -97,9 +97,9 @@ public class FrmPrincipal extends javax.swing.JFrame {
      */
     public FrmPrincipal() {
         initComponents();
-        
+
         popularCombo();
-        
+
         this.setIconImage(new ImageIcon(getClass().getClassLoader().getResource("Assets/logo_postprint.png")).getImage());
 
         evento = new Event();
@@ -167,13 +167,13 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 }
             }
         });
-       
+
         String[] colunas3 = new String[]{"Foto", "Nome"};
         modelTblTelao = new MyDefaultTableModel(null, colunas3);
         tabelaFotosTelao.setModel(modelTblTelao);
         tabelaFotosTelao.getColumnModel().getColumn(0).setPreferredWidth(80);
         tabelaFotosTelao.getColumnModel().getColumn(1).setPreferredWidth(300);
-        
+
         String[] colunas2 = new String[]{"Foto", "Nome", "Status"};
         modelTblImpressas = new MyDefaultTableModel(null, colunas2);
         tabelaFotosImpressas.setModel(modelTblImpressas);
@@ -188,10 +188,10 @@ public class FrmPrincipal extends javax.swing.JFrame {
                     int row = tabelaFotosImpressas.getSelectedRow();
                     e.consume();
                     int dialogResult = JOptionPane.showConfirmDialog(null, "Deseja realmente reimprimir esta foto?", "Atenção", JOptionPane.YES_NO_OPTION);
-                        if (dialogResult == JOptionPane.YES_OPTION) {
-                            sendToPrint(tabelaFotosImpressas.getValueAt(row, 1).toString());
-                            tabelaFotosImpressas.setValueAt("IMPRIMINDO", row, 2);
-                        }
+                    if (dialogResult == JOptionPane.YES_OPTION) {
+                        sendToPrint(tabelaFotosImpressas.getValueAt(row, 1).toString());
+                        tabelaFotosImpressas.setValueAt("IMPRIMINDO", row, 2);
+                    }
                 }
             }
         });
@@ -242,7 +242,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                             Object[] obj = new Object[3];
                             obj[0] = image;
                             obj[1] = arquivos[i].getName();
-                          
+
                             listaFotosBaixadas.add(arquivos[i].getName());
                             modelTblTelao.addRow(obj);
 
@@ -299,7 +299,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                             qtdeImpressas++;
                             listaFotosBaixadas.add(arquivos[i].getName());
                             modelTblImpressas.addRow(obj);
-                             modelTblBaixadas.removeRow(obj.hashCode());
+                            modelTblBaixadas.removeRow(obj.hashCode());
                             ;
 //                            modelTblImpressas.setRowColour(modelTblImpressas.getRowCount()-1, Color.GREEN);
                         }
@@ -352,7 +352,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
                             Object[] obj = new Object[3];
                             obj[0] = image;
                             obj[1] = arquivos[i].getName();
-                            obj[2] = "NA FILA";
 
                             //qtdeImpressas++;
                             listaFotosBaixadas.add(arquivos[i].getName());
@@ -430,11 +429,11 @@ public class FrmPrincipal extends javax.swing.JFrame {
                                             //System.out.println("Adicionou a lista de Impressão: "+obj[1].toString());
                                         }
                                     } else {
-                                       
+
                                     }
-                                     if (modelTblImpressas.getRowCount() > 0) {
-                                            modelTblImpressas.removeRow(0);
-                                        }
+                                    if (modelTblImpressas.getRowCount() > 0) {
+                                        modelTblImpressas.removeRow(0);
+                                    }
                                 }
                             }
                         } catch (InterruptedException ex) {
@@ -517,7 +516,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 photo.createImageFromTemplate(arquivo, dirFotosFila + hashtag + "/", evento.getId_print_template());
 
                 printer.selecionaImpressoras(comboImpressoras.getSelectedItem().toString());
-                printer.imprime(photo.toString());
+                printer.imprime(arquivo.getPath());
             }
         } catch (Exception ex) {
         }
@@ -1079,7 +1078,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 }
             }
         }
-         if (tabelaFotosTelao != null) {
+        if (tabelaFotosTelao != null) {
             if (modelTblTelao.getRowCount() > 0) {
                 for (int i = modelTblTelao.getRowCount() - 1; i > -1; i--) {
                     modelTblTelao.removeRow(i);
@@ -1194,16 +1193,16 @@ public class FrmPrincipal extends javax.swing.JFrame {
         });
     }
 
-
     protected void popularCombo() throws HeadlessException {
         Impressora printer = new Impressora();
         final List<String> listImpressoras = printer.detectaImpressoras();
-        
-        if(listImpressoras.isEmpty())
+
+        if (listImpressoras.isEmpty()) {
             JOptionPane.showMessageDialog(null, "ATENÇÃO! Não foi encontrado uma impressora instalada ");
-        
+        }
+
         for (String impressora : listImpressoras) {
-             comboImpressoras.addItem(impressora);   
+            comboImpressoras.addItem(impressora);
         }
     }
 
