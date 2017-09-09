@@ -27,12 +27,10 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
-import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JFrame;
@@ -46,7 +44,6 @@ import javax.swing.table.DefaultTableModel;
 public class FrmPrincipal extends javax.swing.JFrame {
 
     private Event evento;
-    private Instagram insta;
     private String hashtag;
 
     private Timer timer;
@@ -54,10 +51,9 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private Timer timerPrinter;
 
     private DefaultTableModel modelTblBaixadas;
-    private MyDefaultTableModel modelTblImpressas;
-    private MyDefaultTableModel modelTblTelao;
-    private DefaultListModel modelListaImpressoras;
-
+    private DefaultTableModel modelTblImpressas;
+    private DefaultTableModel modelTblTelao;
+    
     private FrmTelao frame;
 
     private String dirFotosEnviadas = "FotosEnviadas/";
@@ -65,7 +61,9 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private String dirFotosImpressas = "FotosImpressas/";
     private String dirFotosTelao = "FotosTelao/";
 
-    private List<String> listaFotos;
+    private List<String> listaFotosBaixadas;
+    private List<String> listaFotosImpressas;
+    private List<String> listaFotosTelao;
 
     private String[] printsSelecteds;
     private int totPrints = 0;
@@ -78,7 +76,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private boolean temImpressao = false;
     private int qtdeBaixadas = 0;
     private int qtdeTelao = 0;
-    private int qtdeUtilizadas = 0;
     private int qtdeImpressas = 0;
     private int totFotos = 0;
 
@@ -86,18 +83,12 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
     private static final Logger LOG = Logger.getLogger(FrmPrincipal.class.getName());
 
-    private Object lock = new Object();
-    private CountDownLatch waitForDevices;
-
     private Thread[] threadFila;
     private int TIME_HANDLER = 3000;
     private Timer timerSleep;
     private boolean SLEEP = false;
     public FilaPrinter fila;
 
-    /**
-     * Creates new form FrmPrincipal
-     */
     public FrmPrincipal() {
         initComponents();
 
@@ -106,9 +97,9 @@ public class FrmPrincipal extends javax.swing.JFrame {
         this.setIconImage(new ImageIcon(getClass().getClassLoader().getResource("Assets/logo_postprint.png")).getImage());
 
         evento = new Event();
-        //insta = new Instagram();
-
-        listaFotos = new ArrayList<>();
+        listaFotosBaixadas = new ArrayList<>();
+        listaFotosImpressas = new ArrayList<>();
+        listaFotosTelao = new ArrayList<>();
        
         File dirEnviadas = new File(dirFotosEnviadas);
         if (dirEnviadas.exists() == false) {
@@ -129,8 +120,8 @@ public class FrmPrincipal extends javax.swing.JFrame {
             dirTelao.mkdir();
         }
 
-        String[] colunas = new String[]{"Foto", "Nome"};
-        modelTblBaixadas = new DefaultTableModel(null, colunas) {
+        String[] colunasBaixada = new String[]{"Foto", "Descrição"};
+        modelTblBaixadas = new DefaultTableModel(null, colunasBaixada) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -145,56 +136,53 @@ public class FrmPrincipal extends javax.swing.JFrame {
             }
         };
 
-        tableFotosBaixadas.setModel(modelTblBaixadas);
-        tableFotosBaixadas.getColumnModel().getColumn(0).setPreferredWidth(80);
-        tableFotosBaixadas.getColumnModel().getColumn(1).setPreferredWidth(350);
-
-        tableFotosBaixadas.addMouseListener(new MouseAdapter() {
+        //Tabela Baixada duas ações
+        tabelaFotosBaixadas.setModel(modelTblBaixadas);
+        tabelaFotosBaixadas.getColumnModel().getColumn(0).setPreferredWidth(80);
+        tabelaFotosBaixadas.getColumnModel().getColumn(1).setPreferredWidth(350);
+        
+        tabelaFotosBaixadas.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    int row = tableFotosBaixadas.getSelectedRow();
+                    int row = tabelaFotosBaixadas.getSelectedRow();
                     e.consume();
 
                     Object[] obj = new Object[3];
-                    obj[0] = tableFotosBaixadas.getValueAt(row, 0);
-                    obj[1] = tableFotosBaixadas.getValueAt(row, 1).toString();
+                    obj[0] = tabelaFotosBaixadas.getValueAt(row, 0);
+                    obj[1] = tabelaFotosBaixadas.getValueAt(row, 1).toString();
                     if (temImpressao) {
-                        obj[2] = "IMPRIMINDO";
                         modelTblImpressas.addRow(obj);
                         sendToPrint(obj[1].toString());
                         qtdeImpressas++;
                         lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
                     }
                     if (temTelao) {
-                        obj[2] = "TELÃO";
                         modelTblTelao.addRow(obj);
                         qtdeTelao++;
                         lbQtdTelao.setText(String.valueOf(qtdeTelao));
                     }
 
-                    modelTblBaixadas.removeRow(row);
-                    qtdeUtilizadas++;
-                    lbTotalUtilizadas.setText(String.valueOf(qtdeUtilizadas));
                 }
             }
         });
 
-        String[] colunas3 = new String[]{"Foto", "Nome"};
-        modelTblTelao = new MyDefaultTableModel(null, colunas3);
+        //Tabela Telão sem ação
+        String[] colunasTelao = new String[]{"Foto", "Descrição"};
+        modelTblTelao = new MyDefaultTableModel(null, colunasTelao);
         tabelaFotosTelao.setModel(modelTblTelao);
         tabelaFotosTelao.getColumnModel().getColumn(0).setPreferredWidth(80);
         tabelaFotosTelao.getColumnModel().getColumn(1).setPreferredWidth(300);
 
-        String[] colunas2 = new String[]{"Foto", "Nome", "Status"};
-        modelTblImpressas = new MyDefaultTableModel(null, colunas2);
+        //Tabela Impressas ação de reimpressão
+        String[] colunasImpressas = new String[]{"Foto", "Descrição", "Status"};
+        modelTblImpressas = new MyDefaultTableModel(null, colunasImpressas);
         tabelaFotosImpressas.setModel(modelTblImpressas);
         tabelaFotosImpressas.getColumnModel().getColumn(0).setPreferredWidth(80);
         tabelaFotosImpressas.getColumnModel().getColumn(1).setPreferredWidth(300);
         tabelaFotosImpressas.getColumnModel().getColumn(2).setPreferredWidth(100);
 
         tabelaFotosImpressas.addMouseListener(new MouseAdapter() {
-
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
@@ -225,7 +213,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
             }
         });
 
-        tableFotosBaixadas.getTableHeader().setVisible(false);
+        tabelaFotosBaixadas.getTableHeader().setVisible(false);
         tabelaFotosImpressas.getTableHeader().setVisible(false);
         tabelaFotosTelao.getTableHeader().setVisible(false);
 
@@ -234,72 +222,89 @@ public class FrmPrincipal extends javax.swing.JFrame {
     }
 
     private void loadFotosTelao() {
-        try {
-            String outputDirectory = dirFotosTelao + hashtag + "/";
-
-            File dir = new File(outputDirectory);
-            if (dir.isDirectory()) {
-                File arquivos[] = dir.listFiles();
-                ImageIcon image;
-                for (File arquivo : arquivos) {
-                    if (arquivo.getName().indexOf(".jpg") > 0 || arquivo.getName().indexOf(".JPG") > 0) {
-                        if (listaFotos.contains(arquivo.getName()) == false) {
-                            String pathFile = arquivo.getAbsolutePath();
-                            image = new ImageIcon(pathFile);
+        File dir = new File(dirFotosTelao + hashtag + "/");
+        if (dir.isDirectory()) {
+            File arquivos[] = dir.listFiles();
+            Arrays.sort(arquivos, (Object o1, Object o2) -> {
+                if (((File) o1).lastModified() > ((File) o2).lastModified()) {
+                    return +1;
+                } else if (((File) o1).lastModified() < ((File) o2).lastModified()) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            });
+             
+            for (File arquivo : arquivos) {
+                if (arquivo.getName().indexOf(".jpg") > 0 || arquivo.getName().indexOf(".JPG") > 0) {
+                    if (listaFotosTelao.contains(arquivo.getName()) == false) {
+                        try {
+                            ImageIcon image;
+                            image = new ImageIcon(arquivo.getAbsolutePath());
                             Image scaledImage = image.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
                             image.setImage(scaledImage);
-                            Object[] obj = new Object[3];
+                            Object[] obj = new Object[2];
                             obj[0] = image;
                             obj[1] = arquivo.getName();
-                            qtdeTelao++;
-                            listaFotos.add(arquivo.getName());
-                            modelTblTelao.addRow(obj);
-                            lbQtdTelao.setText(String.valueOf(qtdeTelao));
-                        }
+                            boolean existe = false;
+                            int tot_telao = modelTblTelao.getRowCount();
+                            for (int x = 0; x < tot_telao; x++) {
+                                if (modelTblTelao.getValueAt(x, 1).equals(obj[1].toString())) {
+                                    existe = true;
+                                }
+                            }
+                            if (existe == false) {
+                                qtdeTelao++;
+                                modelTblTelao.addRow(obj);
+                                listaFotosTelao.add(arquivo.getName());
+                                lbQtdTelao.setText(String.valueOf(qtdeTelao));
+                            }
+                       
+                        }catch (Exception ex) {
+                                Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                                
+                            }
                     }
                 }
             }
-
-        } catch (Exception e) {
-           
         }
     }
 
     private void loadFotosImpressas() {
         try {
-            String outputDirectory = dirFotosImpressas + hashtag + "/";
-
-            File dir = new File(outputDirectory);
+            File dir = new File(dirFotosImpressas + hashtag + "/");
             if (dir.isDirectory()) {
                 File arquivos[] = dir.listFiles();
-                Arrays.sort(arquivos, (Object o1, Object o2) -> {
-                    if (((File) o1).lastModified() > ((File) o2).lastModified()) {
-                        return +1;
-                    } else if (((File) o1).lastModified() < ((File) o2).lastModified()) {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
-                });
-                ImageIcon image;
+                               
                 for (File arquivo : arquivos) {
                     if (arquivo.getName().indexOf(".jpg") > 0 || arquivo.getName().indexOf(".JPG") > 0) {
-                        if (listaFotos.contains(arquivo.getName()) == false) {
-                            String pathFile = arquivo.getAbsolutePath();
-                            String imagePath = pathFile.replaceAll("FotosImpressas", "FotosEnviadas");
-                            image = new ImageIcon(imagePath);
-                            Image scaledImage = image.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
-                            image.setImage(scaledImage);
-                            Object[] obj = new Object[3];
-                            obj[0] = image;
-                            obj[1] = arquivo.getName();
-                            obj[2] = "IMPRESSA";
-                            qtdeImpressas++;
-                            lbQtdImpressas.setText(String.valueOf(qtdeImpressas));
-                            listaFotos.add(arquivo.getName());
-                            modelTblImpressas.addRow(obj);
-                            modelTblBaixadas.removeRow(Arrays.hashCode(obj));
-                            lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
+                        if (listaFotosImpressas.contains(arquivo.getName()) == false) {
+                           ImageIcon image;
+                           try {
+                                image = new ImageIcon(arquivo.getAbsolutePath());
+                                Image scaledImage = image.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+                                image.setImage(scaledImage);
+                                Object[] obj = new Object[3];
+                                obj[0] = image;
+                                obj[1] = arquivo.getName();
+                                obj[2] = "IMPRESSA";
+                                boolean existe = false;
+                                int tot_impressa = modelTblImpressas.getRowCount();
+                                for (int x = 0; x < tot_impressa; x++) {
+                                    if (modelTblImpressas.getValueAt(x, 1).equals(obj[1].toString())) {
+                                        existe = true;
+                                    }
+                                }
+                                if (existe == false) {
+                                    qtdeImpressas++;
+                                    modelTblImpressas.addRow(obj);
+                                    listaFotosImpressas.add(arquivo.getName());
+                                    lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
+                                }
+                                
+                            }catch (Exception ex) {
+                                Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                         }
                     }
                 }
@@ -313,37 +318,39 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
     private void loadFotosAImprimir() {
         try {
-            String outputDirectory = dirFotosFila + hashtag + "/";
-           
-            File dir = new File(outputDirectory);
+            File dir = new File(dirFotosFila + hashtag + "/");
             if (dir.isDirectory()) {
                 File arquivos[] = dir.listFiles();
-                Arrays.sort(arquivos, (Object o1, Object o2) -> {
-                    if (((File) o1).lastModified() > ((File) o2).lastModified()) {
-                        return +1;
-                    } else if (((File) o1).lastModified() < ((File) o2).lastModified()) {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
-                });
-                ImageIcon image;
+               
                 for (File arquivo : arquivos) {
                     if (arquivo.getName().indexOf(".jpg") > 0 || arquivo.getName().indexOf(".JPG") > 0) {
-                        if (listaFotos.contains(arquivo.getName()) == false) {
-                            String pathFile = arquivo.getAbsolutePath();
-                            String imagePath = pathFile.replaceAll("FotosFila", "FotosEnviadas");
-                            image = new ImageIcon(imagePath);
-                            Image scaledImage = image.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
-                            image.setImage(scaledImage);
-                            Object[] obj = new Object[3];
-                            obj[0] = image;
-                            obj[1] = arquivo.getName();
-                            obj[2] = "IMPRIMIR";
-                            qtdeImpressas++;
-                            listaFotos.add(arquivo.getName());
-                            modelTblImpressas.addRow(obj);
-                            lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
+                        if (listaFotosImpressas.contains(arquivo.getName()) == false) {
+                           ImageIcon image;
+                           try {
+                                image = new ImageIcon(arquivo.getAbsolutePath());
+                                Image scaledImage = image.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+                                image.setImage(scaledImage);
+                                Object[] obj = new Object[3];
+                                obj[0] = image;
+                                obj[1] = arquivo.getName();
+                                obj[2] = "IMPRIMIR";
+                                boolean existe = false;
+                                int tot_impressa = modelTblImpressas.getRowCount();
+                                for (int x = 0; x < tot_impressa; x++) {
+                                    if (modelTblImpressas.getValueAt(x, 1).equals(obj[1].toString())) {
+                                        existe = true;
+                                    }
+                                }
+                                if (existe == false) {
+                                    qtdeImpressas++;
+                                    modelTblImpressas.addRow(obj);
+                                    listaFotosImpressas.add(arquivo.getName());
+                                    lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
+                                }
+                                
+                            }catch (Exception ex) {
+                                Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                         }
                     }
                 }
@@ -366,22 +373,20 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 public void run() {
                     try {
                         Thread.sleep(1000);
-                        if (tableFotosBaixadas.getRowCount() > 0) {
-                            if (tableFotosBaixadas.getValueAt(0, 1).toString().length() > 0) {
+                        if (tabelaFotosBaixadas.getRowCount() > 0) {
+                            if (tabelaFotosBaixadas.getValueAt(0, 1).toString().length() > 0) {
                                 //System.out.println("Mandou para impressora");
                                 
                                 final Object[] obj = new Object[3];
-                                obj[0] = tableFotosBaixadas.getValueAt(0, 0);
-                                obj[1] = tableFotosBaixadas.getValueAt(0, 1).toString();
+                                obj[0] = tabelaFotosBaixadas.getValueAt(0, 0);
+                                obj[1] = tabelaFotosBaixadas.getValueAt(0, 1).toString();
                                 if (temImpressao == true) {
                                     obj[2] = "NA FILA";
                                 } else {
                                     obj[2] = "NO TELÃO";
                                 }
                                 
-                                if (modelTblBaixadas.getRowCount() > 0) {
-                                    modelTblBaixadas.removeRow(0);
-                                }
+                               
                                 //Thread.sleep(1000);
                                 if (btnStartStopEvento.getText().equals("Parar Evento")) {
                                     boolean existe = false;
@@ -433,7 +438,10 @@ public class FrmPrincipal extends javax.swing.JFrame {
         
         ActionListener action;
         action = (@SuppressWarnings("unused") java.awt.event.ActionEvent e) -> {
+            Instagram.importPhotosInstagram(hashtag, dirFotosEnviadas);
             loadFotosBaixadas();
+           
+       
         };
         
         timer = new Timer(12000, action);//Importa fotos do instagram a cada 10 segundosx
@@ -519,7 +527,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
             for (File arquivo : arquivos) {
                 if (arquivo.getName().indexOf(".jpg") > 0 || arquivo.getName().indexOf(".JPG") > 0) {
                     if (!arquivo.getName().contains("_baixando.jpg")) {
-                        if (listaFotos.contains(arquivo.getName()) == false) {
+                        if (listaFotosBaixadas.contains(arquivo.getName()) == false) {
                             ImageIcon image;
                             try {
                                 image = new ImageIcon(arquivo.getAbsolutePath());
@@ -538,7 +546,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                                 if (existe == false) {
                                     qtdeBaixadas++;
                                     modelTblBaixadas.addRow(obj);
-                                    listaFotos.add(arquivo.getName());
+                                    listaFotosBaixadas.add(arquivo.getName());
                                     lbQtdBaixadas.setText(String.valueOf(qtdeBaixadas));
                                 }
                             }catch (Exception ex) {
@@ -576,11 +584,9 @@ public class FrmPrincipal extends javax.swing.JFrame {
         pnlImpressoes = new javax.swing.JPanel();
         labelBaixadas = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
-        tableFotosBaixadas = new javax.swing.JTable();
+        tabelaFotosBaixadas = new javax.swing.JTable();
         jLabel5 = new javax.swing.JLabel();
         lbQtdBaixadas = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        lbTotalUtilizadas = new javax.swing.JLabel();
         labelImpresa = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         tabelaFotosImpressas = new javax.swing.JTable();
@@ -647,29 +653,31 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
         labelBaixadas.setBorder(javax.swing.BorderFactory.createTitledBorder("Fotos Instagram"));
 
-        tableFotosBaixadas.setModel(new javax.swing.table.DefaultTableModel(
+        tabelaFotosBaixadas.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Title 1", "Title 2"
             }
         ));
-        tableFotosBaixadas.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
-        tableFotosBaixadas.setRowHeight(80);
-        tableFotosBaixadas.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        jScrollPane3.setViewportView(tableFotosBaixadas);
+        tabelaFotosBaixadas.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        tabelaFotosBaixadas.setRowHeight(80);
+        tabelaFotosBaixadas.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        jScrollPane3.setViewportView(tabelaFotosBaixadas);
 
         jLabel5.setText("Total de fotos baixadas:");
 
         lbQtdBaixadas.setText("0");
-
-        jLabel8.setText("Utilizadas:");
-
-        lbTotalUtilizadas.setText("0");
 
         org.jdesktop.layout.GroupLayout labelBaixadasLayout = new org.jdesktop.layout.GroupLayout(labelBaixadas);
         labelBaixadas.setLayout(labelBaixadasLayout);
@@ -679,20 +687,14 @@ public class FrmPrincipal extends javax.swing.JFrame {
             .add(labelBaixadasLayout.createSequentialGroup()
                 .add(jLabel5)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(lbQtdBaixadas, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(jLabel8)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(lbTotalUtilizadas, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 89, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(lbQtdBaixadas, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
         labelBaixadasLayout.setVerticalGroup(
             labelBaixadasLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(labelBaixadasLayout.createSequentialGroup()
                 .add(labelBaixadasLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel5)
-                    .add(lbQtdBaixadas)
-                    .add(jLabel8)
-                    .add(lbTotalUtilizadas))
+                    .add(lbQtdBaixadas))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 281, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -702,13 +704,19 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
         tabelaFotosImpressas.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Title 1", "Title 2", "Title 3"
             }
         ));
         tabelaFotosImpressas.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
@@ -750,23 +758,21 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
         tabelaFotosTelao.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Title 1", "Title 2"
             }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
+        ));
         tabelaFotosTelao.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
         tabelaFotosTelao.setRowHeight(80);
         tabelaFotosTelao.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
@@ -1039,7 +1045,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
         lbQtdBaixadas.setText("0");
         lbQtdTelao.setText("0");
         lbQtdImpressas.setText("0");
-        lbTotalUtilizadas.setText("0");
         limpaTabelas();
         stopPrint();
        
@@ -1078,10 +1083,12 @@ public class FrmPrincipal extends javax.swing.JFrame {
             }
         }
        
-        listaFotos.clear();
+        listaFotosBaixadas.clear();
+        listaFotosImpressas.clear();
+        listaFotosTelao.clear();
         tabelaFotosImpressas.removeAll();
         tabelaFotosTelao.removeAll();
-        tableFotosBaixadas.removeAll();
+        tabelaFotosBaixadas.removeAll();
     }
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
@@ -1261,7 +1268,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
@@ -1273,12 +1279,11 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private javax.swing.JLabel lbQtdBaixadas;
     private javax.swing.JLabel lbQtdImpressas;
     private javax.swing.JLabel lbQtdTelao;
-    private javax.swing.JLabel lbTotalUtilizadas;
     private javax.swing.JLabel lblNomeEvento;
     private javax.swing.JPanel pnlImpressoes;
+    private javax.swing.JTable tabelaFotosBaixadas;
     private javax.swing.JTable tabelaFotosImpressas;
     private javax.swing.JTable tabelaFotosTelao;
-    private javax.swing.JTable tableFotosBaixadas;
     private javax.swing.JTable tblEvento;
     // End of variables declaration//GEN-END:variables
 }

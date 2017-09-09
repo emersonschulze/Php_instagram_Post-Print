@@ -26,7 +26,7 @@ public class Instagram {
 
     }
 
-    public static boolean importPhotosInstagram(String tag, String outputDirectory) {
+    public static void importPhotosInstagram(String tag, String outputDirectory) {
         try {
             outputDirectory = outputDirectory + tag + "/";
 
@@ -75,13 +75,13 @@ public class Instagram {
                     }
                 }
             }
-            return true;
+           
         } catch (MalformedURLException e1) {
        
         } catch (IOException e) {
         
         }
-        return false;
+    
     }
 
     public void printImagesInDirectory(String pathDirectoryImages) {
