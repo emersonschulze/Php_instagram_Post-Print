@@ -50,7 +50,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private Timer timerAutomatico;
     private Timer timerPrinter;
 
-    private DefaultTableModel modelTblBaixadas;
+    private final DefaultTableModel modelTblBaixadas;
     private DefaultTableModel modelTblImpressas;
     private DefaultTableModel modelTblTelao;
     
@@ -88,6 +88,8 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private Timer timerSleep;
     private boolean SLEEP = false;
     public FilaPrinter fila;
+    
+     public static final String[] acao = { "Imprimir", "Telão", "Imprimir/Telão" };
 
     public FrmPrincipal() {
         initComponents();
@@ -141,6 +143,9 @@ public class FrmPrincipal extends javax.swing.JFrame {
         tabelaFotosBaixadas.getColumnModel().getColumn(0).setPreferredWidth(80);
         tabelaFotosBaixadas.getColumnModel().getColumn(1).setPreferredWidth(350);
         
+        
+        
+        
         tabelaFotosBaixadas.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -148,25 +153,87 @@ public class FrmPrincipal extends javax.swing.JFrame {
                     int row = tabelaFotosBaixadas.getSelectedRow();
                     e.consume();
 
-                    Object[] obj = new Object[3];
+                    Object[] obj = new Object[2];
                     obj[0] = tabelaFotosBaixadas.getValueAt(row, 0);
                     obj[1] = tabelaFotosBaixadas.getValueAt(row, 1).toString();
-                    if (temImpressao) {
+                    
+                    JFrame frame = new JFrame("Informação sobre a foto");
+                    String questao = (String) JOptionPane.showInputDialog(frame, 
+                    "Enviar Imagem para:",
+                    "Ação",
+                    JOptionPane.QUESTION_MESSAGE, 
+                    null, //icon
+                    acao, 
+                    acao[0]);
+
+                switch (questao) {
+                    case "Imprimir":
+                        if (modelTblImpressas.getDataVector().contains(obj)){
+                            if (temImpressao){
+                                JOptionPane.showMessageDialog(null, "Imagem já foi impressa, consulte tabela de impressas para reimpreção", "Error", JOptionPane.ERROR_MESSAGE);
+                                break; 
+                            }else{
+                                JOptionPane.showMessageDialog(null, "Evento não permite impressão de foto", "Error", JOptionPane.ERROR_MESSAGE);
+                                break; 
+                            }
+                        }else{
                         modelTblImpressas.addRow(obj);
                         sendToPrint(obj[1].toString());
                         qtdeImpressas++;
                         lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
+                        break; 
+                        }
+                       
+                    case "Telão":
+                        if (modelTblTelao.getDataVector().contains(obj)){
+                            if (temTelao ){
+                                JOptionPane.showMessageDialog(null, "Imagem já está no telão!", "Error", JOptionPane.ERROR_MESSAGE);
+                                break; 
+                            }else{
+                                JOptionPane.showMessageDialog(null, "Evento não permite exibição de foto", "Error", JOptionPane.ERROR_MESSAGE);
+                                break; 
+                            }
+                        }else{
+                            modelTblTelao.addRow(obj);
+                            qtdeTelao++;
+                            lbQtdTelao.setText(String.valueOf(qtdeTelao));
+                            break;
+                        }
+                    case "Imprimir/Telão":
+                        if (modelTblTelao.getDataVector().contains(obj) && modelTblImpressas.getDataVector().contains(obj)){
+                            if (temTelao){
+                                JOptionPane.showMessageDialog(null, "Imagem já está no telão!", "Error", JOptionPane.ERROR_MESSAGE);
+                            }else{
+                                JOptionPane.showMessageDialog(null, "Evento não permite exibição de foto", "Error", JOptionPane.ERROR_MESSAGE);
+                            }
+                            if (temImpressao){
+                                JOptionPane.showMessageDialog(null, "Imagem já foi impressa, consulte tabela de impressas para reimpreção", "Error", JOptionPane.ERROR_MESSAGE);
+                            }else{
+                                JOptionPane.showMessageDialog(null, "Evento não permite impressão de foto", "Error", JOptionPane.ERROR_MESSAGE);
+                            }
+                            break;    
+                        }else{
+                            modelTblImpressas.addRow(obj);
+                            modelTblTelao.addRow(obj);
+                            sendToPrint(obj[1].toString());
+                            qtdeImpressas++;
+                            qtdeTelao++;
+                            lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
+                            lbQtdTelao.setText(String.valueOf(qtdeTelao));
+                            break;
+                         }
+                    default:
+                       JOptionPane.showMessageDialog(null, "Opção não selecionada", "Error", JOptionPane.ERROR_MESSAGE);
+                        
                     }
-                    if (temTelao) {
-                        modelTblTelao.addRow(obj);
-                        qtdeTelao++;
-                        lbQtdTelao.setText(String.valueOf(qtdeTelao));
-                    }
-
                 }
             }
         });
 
+        
+        
+        
+        
         //Tabela Telão sem ação
         String[] colunasTelao = new String[]{"Foto", "Descrição"};
         modelTblTelao = new MyDefaultTableModel(null, colunasTelao);
