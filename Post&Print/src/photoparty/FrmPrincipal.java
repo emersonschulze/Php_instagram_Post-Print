@@ -103,24 +103,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         listaFotosImpressas = new ArrayList<>();
         listaFotosTelao = new ArrayList<>();
        
-        File dirEnviadas = new File(dirFotosEnviadas);
-        if (dirEnviadas.exists() == false) {
-            dirEnviadas.mkdir();
-        }
-        File dirImpressas = new File(dirFotosImpressas);
-        if (dirImpressas.exists() == false) {
-            dirImpressas.mkdir();
-        }
-
-        File dirFila = new File(dirFotosFila);
-        if (dirFila.exists() == false) {
-            dirFila.mkdir();
-        }
-
-        File dirTelao = new File(dirFotosTelao);
-        if (dirTelao.exists() == false) {
-            dirTelao.mkdir();
-        }
+        criarDiretorios();
 
         String[] colunasBaixada = new String[]{"Foto", "Descrição"};
         modelTblBaixadas = new DefaultTableModel(null, colunasBaixada) {
@@ -143,9 +126,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
         tabelaFotosBaixadas.getColumnModel().getColumn(0).setPreferredWidth(80);
         tabelaFotosBaixadas.getColumnModel().getColumn(1).setPreferredWidth(350);
         
-        
-        
-        
         tabelaFotosBaixadas.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -153,87 +133,23 @@ public class FrmPrincipal extends javax.swing.JFrame {
                     int row = tabelaFotosBaixadas.getSelectedRow();
                     e.consume();
 
-                    Object[] obj = new Object[2];
+                    Object[] obj = new Object[3];
                     obj[0] = tabelaFotosBaixadas.getValueAt(row, 0);
                     obj[1] = tabelaFotosBaixadas.getValueAt(row, 1).toString();
-                    
-                    JFrame frame = new JFrame("Informação sobre a foto");
-                    String questao = (String) JOptionPane.showInputDialog(frame, 
-                    "Enviar Imagem para:",
-                    "Ação",
-                    JOptionPane.QUESTION_MESSAGE, 
-                    null, //icon
-                    acao, 
-                    acao[0]);
-
-                switch (questao) {
-                    case "Imprimir":
-                        if (modelTblImpressas.getDataVector().contains(obj)){
-                            if (temImpressao){
-                                JOptionPane.showMessageDialog(null, "Imagem já foi impressa, consulte tabela de impressas para reimpreção", "Error", JOptionPane.ERROR_MESSAGE);
-                                break; 
-                            }else{
-                                JOptionPane.showMessageDialog(null, "Evento não permite impressão de foto", "Error", JOptionPane.ERROR_MESSAGE);
-                                break; 
-                            }
-                        }else{
+                    if (temImpressao) {
+                        obj[2] = "IMPRIMINDO";
                         modelTblImpressas.addRow(obj);
                         sendToPrint(obj[1].toString());
-                        qtdeImpressas++;
-                        lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
-                        break; 
-                        }
-                       
-                    case "Telão":
-                        if (modelTblTelao.getDataVector().contains(obj)){
-                            if (temTelao ){
-                                JOptionPane.showMessageDialog(null, "Imagem já está no telão!", "Error", JOptionPane.ERROR_MESSAGE);
-                                break; 
-                            }else{
-                                JOptionPane.showMessageDialog(null, "Evento não permite exibição de foto", "Error", JOptionPane.ERROR_MESSAGE);
-                                break; 
-                            }
-                        }else{
-                            modelTblTelao.addRow(obj);
-                            qtdeTelao++;
-                            lbQtdTelao.setText(String.valueOf(qtdeTelao));
-                            break;
-                        }
-                    case "Imprimir/Telão":
-                        if (modelTblTelao.getDataVector().contains(obj) && modelTblImpressas.getDataVector().contains(obj)){
-                            if (temTelao){
-                                JOptionPane.showMessageDialog(null, "Imagem já está no telão!", "Error", JOptionPane.ERROR_MESSAGE);
-                            }else{
-                                JOptionPane.showMessageDialog(null, "Evento não permite exibição de foto", "Error", JOptionPane.ERROR_MESSAGE);
-                            }
-                            if (temImpressao){
-                                JOptionPane.showMessageDialog(null, "Imagem já foi impressa, consulte tabela de impressas para reimpreção", "Error", JOptionPane.ERROR_MESSAGE);
-                            }else{
-                                JOptionPane.showMessageDialog(null, "Evento não permite impressão de foto", "Error", JOptionPane.ERROR_MESSAGE);
-                            }
-                            break;    
-                        }else{
-                            modelTblImpressas.addRow(obj);
-                            modelTblTelao.addRow(obj);
-                            sendToPrint(obj[1].toString());
-                            qtdeImpressas++;
-                            qtdeTelao++;
-                            lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
-                            lbQtdTelao.setText(String.valueOf(qtdeTelao));
-                            break;
-                         }
-                    default:
-                       JOptionPane.showMessageDialog(null, "Opção não selecionada", "Error", JOptionPane.ERROR_MESSAGE);
-                        
                     }
+                    if (temTelao) {
+                        modelTblTelao.addRow(obj);
+                    }
+
+                    modelTblBaixadas.removeRow(row);
                 }
             }
         });
 
-        
-        
-        
-        
         //Tabela Telão sem ação
         String[] colunasTelao = new String[]{"Foto", "Descrição"};
         modelTblTelao = new MyDefaultTableModel(null, colunasTelao);
@@ -287,6 +203,8 @@ public class FrmPrincipal extends javax.swing.JFrame {
         gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         gd.setFullScreenWindow(null);
     }
+
+    
 
     private void loadFotosTelao() {
         File dir = new File(dirFotosTelao + hashtag + "/");
@@ -428,75 +346,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         }
     }
 
-    private void startPrint() {
-
-        buscaFotosInstagram();
-
-        ActionListener action2 = (@SuppressWarnings("unused") java.awt.event.ActionEvent e) -> {
-            //System.out.println("Entrou no timer");
-            
-            (new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(1000);
-                        if (tabelaFotosBaixadas.getRowCount() > 0) {
-                            if (tabelaFotosBaixadas.getValueAt(0, 1).toString().length() > 0) {
-                                //System.out.println("Mandou para impressora");
-                                
-                                final Object[] obj = new Object[3];
-                                obj[0] = tabelaFotosBaixadas.getValueAt(0, 0);
-                                obj[1] = tabelaFotosBaixadas.getValueAt(0, 1).toString();
-                                if (temImpressao == true) {
-                                    obj[2] = "NA FILA";
-                                } else {
-                                    obj[2] = "NO TELÃO";
-                                }
-                                
-                               
-                                //Thread.sleep(1000);
-                                if (btnStartStopEvento.getText().equals("Parar Evento")) {
-                                    boolean existe = false;
-                                    int tot_impressas = modelTblImpressas.getRowCount();
-                                    for (int x = 0; x < tot_impressas; x++) {
-                                        if (modelTblImpressas.getValueAt(x, 1).equals(obj[1].toString())) {
-                                            existe = true;
-                                        }
-                                    }
-                                    if (existe == false && hashtag != null && timerAutomatico.isRunning()) {
-                                        sendToPrint(obj[1].toString());
-                                        modelTblImpressas.addRow(obj);
-                                        //System.out.println("Adicionou a lista de Impressão: "+obj[1].toString());
-                                    }
-                                } else {
-                                    
-                                }
-                                if (modelTblImpressas.getRowCount() > 0) {
-                                    modelTblImpressas.removeRow(0);
-                                }
-                            }
-                        }
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            }).start();
-        };
-
-        timerAutomatico = new Timer(10000, action2);
-        if (automatico) {
-            //System.out.println("Mandou para impressora");
-            timerAutomatico.start();
-        }
-
-        ActionListener action3 = (@SuppressWarnings("unused") java.awt.event.ActionEvent e) -> {
-        };
-        timerPrinter = new Timer(TIME_HANDLER, action3);
-        timerPrinter.start();
-
-        SLEEP = false;
-        lastPrinterPrinted = 0;
-    }
+   
 
     private void buscaFotosInstagram() {
         ProcessoThread thread = new ProcessoThread();
@@ -525,10 +375,12 @@ public class FrmPrincipal extends javax.swing.JFrame {
                     timerAutomatico.stop();
                 }
             }
-            timerPrinter.stop();
-            if (timerSleep != null) {
-                if (timerSleep.isRunning()) {
-                    timerSleep.stop();
+            if (timerPrinter != null) {
+                timerPrinter.stop();
+                if (timerSleep != null) {
+                    if (timerSleep.isRunning()) {
+                        timerSleep.stop();
+                    }
                 }
             }
         }
@@ -671,6 +523,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         comboImpressoras = new javax.swing.JComboBox<>();
         jLabel2 = new javax.swing.JLabel();
         lblNomeEvento = new javax.swing.JLabel();
+        btnAutomatico = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Post&Print");
@@ -709,6 +562,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         });
 
         btnStartStopEvento.setText("Iniciar Evento");
+        btnStartStopEvento.setToolTipText("Inicia um evento atualizando imagens a cada 10 segundos");
         btnStartStopEvento.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         btnStartStopEvento.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -738,6 +592,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
             }
         ));
         tabelaFotosBaixadas.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        tabelaFotosBaixadas.setCellSelectionEnabled(true);
         tabelaFotosBaixadas.setRowHeight(80);
         tabelaFotosBaixadas.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         jScrollPane3.setViewportView(tabelaFotosBaixadas);
@@ -750,11 +605,12 @@ public class FrmPrincipal extends javax.swing.JFrame {
         labelBaixadas.setLayout(labelBaixadasLayout);
         labelBaixadasLayout.setHorizontalGroup(
             labelBaixadasLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 408, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
             .add(labelBaixadasLayout.createSequentialGroup()
                 .add(jLabel5)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(lbQtdBaixadas, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(lbQtdBaixadas, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
         labelBaixadasLayout.setVerticalGroup(
             labelBaixadasLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -799,11 +655,12 @@ public class FrmPrincipal extends javax.swing.JFrame {
         labelImpresa.setLayout(labelImpresaLayout);
         labelImpresaLayout.setHorizontalGroup(
             labelImpresaLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jScrollPane4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 418, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
             .add(labelImpresaLayout.createSequentialGroup()
                 .add(jLabel6)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(lbQtdImpressas, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(lbQtdImpressas, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .add(jScrollPane4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 420, Short.MAX_VALUE)
         );
         labelImpresaLayout.setVerticalGroup(
             labelImpresaLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -855,7 +712,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(lbQtdTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .add(jScrollPane6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 418, Short.MAX_VALUE)
+            .add(jScrollPane6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
         );
         labelTelaoLayout.setVerticalGroup(
             labelTelaoLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -873,11 +730,11 @@ public class FrmPrincipal extends javax.swing.JFrame {
             pnlImpressoesLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(pnlImpressoesLayout.createSequentialGroup()
                 .add(4, 4, 4)
-                .add(labelBaixadas, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(2, 2, 2)
+                .add(labelBaixadas, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(labelImpresa, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(labelTelao, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(labelTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 412, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
         pnlImpressoesLayout.setVerticalGroup(
             pnlImpressoesLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -894,6 +751,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         labelTelao.getAccessibleContext().setAccessibleName("Fotos Telao");
 
         btnExibirTelao.setText("Exibir Telão");
+        btnExibirTelao.setToolTipText("Exibir imagem em telão após adicionadas a tabela Fotos Telão.");
         btnExibirTelao.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         btnExibirTelao.setEnabled(false);
         btnExibirTelao.addActionListener(new java.awt.event.ActionListener() {
@@ -917,6 +775,15 @@ public class FrmPrincipal extends javax.swing.JFrame {
         lblNomeEvento.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
         lblNomeEvento.setText("Nome do Evento");
 
+        btnAutomatico.setText("Automático");
+        btnAutomatico.setToolTipText("Ação automática configurada no cadastro do evento");
+        btnAutomatico.setEnabled(false);
+        btnAutomatico.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAutomaticoActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -925,19 +792,18 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 .add(10, 10, 10)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(layout.createSequentialGroup()
-                                .add(10, 10, 10)
-                                .add(jLabel2)
-                                .add(9, 9, 9)
-                                .add(lblNomeEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 624, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .add(btnExibirTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 122, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(btnStartStopEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 115, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(btnAddEvento))
-                            .add(pnlImpressoes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(10, 10, 10)
+                        .add(jLabel2)
+                        .add(9, 9, 9)
+                        .add(lblNomeEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 624, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(108, 108, 108)
+                        .add(btnAutomatico, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 122, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(8, 8, 8)
+                        .add(btnExibirTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 122, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(btnStartStopEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 115, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(btnAddEvento)
                         .add(0, 0, Short.MAX_VALUE))
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -951,6 +817,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                                 .add(0, 0, Short.MAX_VALUE))
                             .add(jScrollPane1))))
                 .addContainerGap())
+            .add(pnlImpressoes, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -966,22 +833,28 @@ public class FrmPrincipal extends javax.swing.JFrame {
                         .add(9, 9, 9)
                         .add(jPanel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 60, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 184, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                     .add(layout.createSequentialGroup()
-                        .add(37, 37, 37)
-                        .add(jLabel2))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(37, 37, 37)
+                                .add(jLabel2))
+                            .add(layout.createSequentialGroup()
+                                .add(37, 37, 37)
+                                .add(lblNomeEvento))
+                            .add(layout.createSequentialGroup()
+                                .add(11, 11, 11)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                                    .add(btnAutomatico, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                        .add(btnAddEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .add(btnStartStopEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .add(btnExibirTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
+                        .add(370, 370, 370))
                     .add(layout.createSequentialGroup()
-                        .add(11, 11, 11)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(btnAddEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(btnStartStopEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(btnExibirTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(layout.createSequentialGroup()
-                        .add(60, 60, 60)
-                        .add(pnlImpressoes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 360, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(37, 37, 37)
-                        .add(lblNomeEvento))))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(pnlImpressoes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 360, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())))
         );
 
         pack();
@@ -1013,7 +886,17 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 loadFotosTelao();
             }
         } else if (btnStartStopEvento.getText().equals("Parar Evento")) {
-            paraEvento();
+            int dialogResult = JOptionPane.showConfirmDialog(null, "Deseja realmente parar o evento?", "Atenção", JOptionPane.YES_NO_OPTION);
+            if (dialogResult == JOptionPane.YES_OPTION) {
+                File dirTelao = new File(dirFotosTelao + hashtag + "/"); 
+                File dirImpresa = new File(dirFotosImpressas + hashtag + "/"); 
+                File dirFila = new File(dirFotosFila + hashtag + "/"); 
+                
+                paraEvento();
+                deleteDiretorio(dirTelao);
+                deleteDiretorio(dirFila);
+                deleteDiretorio(dirImpresa);
+            }
         }
     }//GEN-LAST:event_btnStartStopEventoActionPerformed
 
@@ -1035,6 +918,13 @@ public class FrmPrincipal extends javax.swing.JFrame {
             }
         }
 
+        if (tblEvento.getValueAt(row, 6).toString().equals("Sim")) {
+            btnAutomatico.setEnabled(true);
+            automatico = true;
+        } else {
+            automatico = false;
+        }
+        
         if (tblEvento.getValueAt(row, 5).toString().equals("Sim")) {
             btnExibirTelao.setEnabled(true);
             temTelao = true;
@@ -1047,7 +937,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         } else {
             temImpressao = false;
         }
-
+        
         totFotos = Integer.parseInt(tblEvento.getValueAt(row, 7).toString());
         lbQtdImpressas.setText(tblEvento.getValueAt(row, 7).toString());
 
@@ -1094,6 +984,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
     }
 
     private boolean paraEvento() {
+        btnAutomatico.setEnabled(false);
         btnExibirTelao.setEnabled(false);
         btnStartStopEvento.setText("Iniciar Evento");
 
@@ -1171,6 +1062,73 @@ public class FrmPrincipal extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnExibirTelaoActionPerformed
 
+    private void btnAutomaticoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAutomaticoActionPerformed
+       startPrint();
+    }//GEN-LAST:event_btnAutomaticoActionPerformed
+
+     private void startPrint() {
+        if (automatico) {
+         
+            ActionListener action2 = (@SuppressWarnings("unused") java.awt.event.ActionEvent e) -> {
+
+                (new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(1000);
+                            if (tabelaFotosBaixadas.getRowCount() > 0) {
+                                if (tabelaFotosBaixadas.getValueAt(0, 1).toString().length() > 0) {
+
+                                    final Object[] obj = new Object[3];
+                                    obj[0] = tabelaFotosBaixadas.getValueAt(0, 0);
+                                    obj[1] = tabelaFotosBaixadas.getValueAt(0, 1).toString();
+                                    if (temImpressao == true) {
+                                        obj[2] = "Na Fila";
+                                        modelTblImpressas.addRow(obj);
+                                    } 
+                                    if (temTelao == true) {
+                                         modelTblTelao.addRow(obj);
+                                    }
+
+                                    //Thread.sleep(1000);
+                                    boolean existe = false;
+                                    int tot_impressas = modelTblImpressas.getRowCount();
+                                    for (int x = 0; x < tot_impressas; x++) {
+                                        if (modelTblImpressas.getValueAt(x, 1).equals(obj[1].toString())) {
+                                            existe = true;
+                                        }
+                                    }
+                                    if (existe == false && hashtag != null && timerAutomatico.isRunning()) {
+                                        sendToPrint(obj[1].toString());
+                                        obj[2] = "Impresa";
+                                    }
+
+                                    if (modelTblImpressas.getRowCount() > 0) {
+                                        modelTblImpressas.removeRow(0);
+                                    }
+                                }
+                            }
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }).start();
+            };
+
+            timerAutomatico = new Timer(10000, action2);
+             timerAutomatico.start();
+      
+
+            ActionListener action3 = (@SuppressWarnings("unused") java.awt.event.ActionEvent e) -> {
+            };
+            timerPrinter = new Timer(TIME_HANDLER, action3);
+            timerPrinter.start();
+
+            SLEEP = false;
+            lastPrinterPrinted = 0;
+        }
+    }
+    
     private void createFrameAtLocation(Point p, FrmTelao frame) {
 
         frame.setLocation(p);
@@ -1257,6 +1215,43 @@ public class FrmPrincipal extends javax.swing.JFrame {
         });
     }
 
+    private void criarDiretorios() {
+        File dirEnviadas = new File(dirFotosEnviadas);
+        if (dirEnviadas.exists() == false) {
+            dirEnviadas.mkdir();
+        }
+        File dirImpressas = new File(dirFotosImpressas);
+        if (dirImpressas.exists() == false) {
+            dirImpressas.mkdir();
+        }
+        
+        File dirFila = new File(dirFotosFila);
+        if (dirFila.exists() == false) {
+            dirFila.mkdir();
+        }
+        
+        File dirTelao = new File(dirFotosTelao);
+        if (dirTelao.exists() == false) {
+            dirTelao.mkdir();
+        }
+    }
+    
+   private static boolean deleteDiretorio(File dir) {
+      if (dir.isDirectory()) {  
+           String[] conteudo = dir.list();  
+          for (String file : conteudo) {
+              boolean success = deleteDiretorio(new File(dir, file));
+              if (!success) {
+                  return false;
+              }
+          }  
+       }  
+     
+    
+       return dir.delete();  
+   }  
+   
+
     class ProcessoThread extends Thread {
 
         public String action;
@@ -1325,6 +1320,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddEvento;
+    private javax.swing.JButton btnAutomatico;
     private javax.swing.JButton btnExibirTelao;
     private javax.swing.JButton btnStartStopEvento;
     private javax.swing.JComboBox<String> comboImpressoras;
