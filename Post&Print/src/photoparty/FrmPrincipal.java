@@ -89,7 +89,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private boolean SLEEP = false;
     public FilaPrinter fila;
     
-     public static final String[] acao = { "Imprimir", "Telão", "Imprimir/Telão" };
+     public static final String[] acao = { "Imprimir/Telão", "Imprimir", "Telão", "Remover" };
 
     public FrmPrincipal() {
         initComponents();
@@ -136,26 +136,78 @@ public class FrmPrincipal extends javax.swing.JFrame {
                     Object[] obj = new Object[3];
                     obj[0] = tabelaFotosBaixadas.getValueAt(row, 0);
                     obj[1] = tabelaFotosBaixadas.getValueAt(row, 1).toString();
-                    if (temImpressao) {
-                        obj[2] = "IMPRIMINDO";
-                        modelTblImpressas.addRow(obj);
-                        sendToPrint(obj[1].toString());
-                    }
-                    if (temTelao) {
-                        modelTblTelao.addRow(obj);
-                    }
+                       
+                    JFrame frame = new JFrame("Informação sobre a foto");
+                    String questao = (String) JOptionPane.showInputDialog(frame, 
+                    "Enviar Imagem para:",
+                    "Ação",
+                    JOptionPane.QUESTION_MESSAGE, 
+                    null, //icon
+                    acao, 
+                    acao[0]);
 
+                switch (questao) {
+                    case "Imprimir":
+                        obj[2] = "IMPRESA";
+                        sendToPrint(obj[1].toString());
+                        qtdeImpressas++;
+                        lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
+                        modelTblBaixadas.removeRow(row);
+                        modelTblImpressas.addRow(obj);
+                        break; 
+                       
+                    case "Telão":
+                        modelTblTelao.addRow(obj);
+                        qtdeTelao++;
+                        lbQtdTelao.setText(String.valueOf(qtdeTelao));
+                        break;
+                    case "Imprimir/Telão":
+                        qtdeImpressas++;
+                        qtdeTelao++;
+                        modelTblTelao.addRow(obj);
+                        sendToPrint(obj[1].toString());
+                        obj[2] = "IMPRESA";
+                        modelTblImpressas.addRow(obj);
+                        lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
+                        lbQtdTelao.setText(String.valueOf(qtdeTelao));
+                        modelTblBaixadas.removeRow(row);
+                        break;
+                        
+                    case "Remover":
                     modelTblBaixadas.removeRow(row);
+                    break;
+                        
+                    default:
+                       JOptionPane.showMessageDialog(null, "Opção não selecionada", "Error", JOptionPane.ERROR_MESSAGE);
+                        
+                    }
                 }
             }
         });
 
-        //Tabela Telão sem ação
+        //Tabela Telão
         String[] colunasTelao = new String[]{"Foto", "Descrição"};
         modelTblTelao = new MyDefaultTableModel(null, colunasTelao);
         tabelaFotosTelao.setModel(modelTblTelao);
         tabelaFotosTelao.getColumnModel().getColumn(0).setPreferredWidth(80);
         tabelaFotosTelao.getColumnModel().getColumn(1).setPreferredWidth(300);
+        
+         tabelaFotosTelao.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int row = tabelaFotosTelao.getSelectedRow();
+                    e.consume();
+                    int dialogResult = JOptionPane.showConfirmDialog(null, "Deseja remover foto do telão?", "Atenção", JOptionPane.YES_NO_OPTION);
+                    if (dialogResult == JOptionPane.YES_OPTION) {
+                        qtdeTelao--;
+                        lbQtdTelao.setText(String.valueOf(qtdeTelao));
+                        modelTblTelao.removeRow(row);
+                    }
+                }
+            }
+        });
+
 
         //Tabela Impressas ação de reimpressão
         String[] colunasImpressas = new String[]{"Foto", "Descrição", "Status"};
@@ -700,6 +752,11 @@ public class FrmPrincipal extends javax.swing.JFrame {
         tabelaFotosTelao.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
         tabelaFotosTelao.setRowHeight(80);
         tabelaFotosTelao.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tabelaFotosTelao.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tabelaFotosTelaoMouseClicked(evt);
+            }
+        });
         jScrollPane6.setViewportView(tabelaFotosTelao);
         tabelaFotosTelao.getAccessibleContext().setAccessibleParent(pnlImpressoes);
 
@@ -1066,6 +1123,10 @@ public class FrmPrincipal extends javax.swing.JFrame {
        startPrint();
     }//GEN-LAST:event_btnAutomaticoActionPerformed
 
+    private void tabelaFotosTelaoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelaFotosTelaoMouseClicked
+
+    }//GEN-LAST:event_tabelaFotosTelaoMouseClicked
+
      private void startPrint() {
         if (automatico) {
          
@@ -1077,36 +1138,27 @@ public class FrmPrincipal extends javax.swing.JFrame {
                         try {
                             Thread.sleep(1000);
                             if (tabelaFotosBaixadas.getRowCount() > 0) {
-                                if (tabelaFotosBaixadas.getValueAt(0, 1).toString().length() > 0) {
-
+                               
                                     final Object[] obj = new Object[3];
                                     obj[0] = tabelaFotosBaixadas.getValueAt(0, 0);
                                     obj[1] = tabelaFotosBaixadas.getValueAt(0, 1).toString();
                                     if (temImpressao == true) {
-                                        obj[2] = "Na Fila";
-                                        modelTblImpressas.addRow(obj);
+                                        sendToPrint(obj[1].toString());
+                                        qtdeImpressas++;
+                                        listaFotosImpressas.add(obj[1].toString());
+                                        lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
+                                        obj[2] = "Impresa";
                                     } 
                                     if (temTelao == true) {
-                                         modelTblTelao.addRow(obj);
+                                        qtdeTelao++;
+                                        listaFotosTelao.add(obj[1].toString());
+                                        lbQtdTelao.setText(String.valueOf(qtdeTelao));
+                                        modelTblTelao.addRow(obj);
                                     }
 
-                                    //Thread.sleep(1000);
-                                    boolean existe = false;
-                                    int tot_impressas = modelTblImpressas.getRowCount();
-                                    for (int x = 0; x < tot_impressas; x++) {
-                                        if (modelTblImpressas.getValueAt(x, 1).equals(obj[1].toString())) {
-                                            existe = true;
-                                        }
-                                    }
-                                    if (existe == false && hashtag != null && timerAutomatico.isRunning()) {
-                                        sendToPrint(obj[1].toString());
-                                        obj[2] = "Impresa";
-                                    }
-
-                                    if (modelTblImpressas.getRowCount() > 0) {
-                                        modelTblImpressas.removeRow(0);
-                                    }
-                                }
+                                        modelTblBaixadas.removeRow(0);
+                                    
+                             
                             }
                         } catch (InterruptedException ex) {
                             Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
