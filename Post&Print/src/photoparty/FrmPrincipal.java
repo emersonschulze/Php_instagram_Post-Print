@@ -474,7 +474,8 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 photo.createImageFromTemplate(arquivo, dirFotosFila + hashtag + "/", evento.getId_print_template());
 
                 printer.selecionaImpressoras(comboImpressoras.getSelectedItem().toString());
-                printer.imprime(arquivo.getPath());
+                printer.imprime(photo.fotoFromTemplate.getPath());
+             
             }
         } catch (IOException ex) {
         }

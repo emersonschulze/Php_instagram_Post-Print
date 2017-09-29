@@ -29,7 +29,6 @@ public class PrintObject implements Printable {
             try {
                 if (arquivo != null) {
                     ImageIcon printImage = new javax.swing.ImageIcon(arquivo.getAbsoluteFile().toString());
-                    System.out.println(arquivo.getAbsoluteFile().toString());
                     double pageWidth = f.getImageableWidth();
                     double pageHeight = f.getImageableHeight();
                     double imageWidth = printImage.getIconWidth();
