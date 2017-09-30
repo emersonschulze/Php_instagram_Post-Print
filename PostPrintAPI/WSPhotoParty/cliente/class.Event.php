@@ -87,7 +87,7 @@ class Event{
 							$mail->setUserName(EMAIL_CONTACT);
 							$mail->setPassword(EMAIL_PASSWORD);
 							if($mail->sendEmail($res['login'], utf8_decode("PhotoParty: Ativar licença"), utf8_decode("Acesso o link abaixo para ativar sua licença de uso.<br>").$link, "PhotoParty")){*/
-								return array("code" => "1", "result" => "OK", "site" => "http://photoparty.lin3.com.br" );	
+								return array("code" => "1", "result" => "OK", "site" => "http://postprint.com.br" );	
 							/*}else{
 								return array("code" => "0", "error" => "Serial gerado, mas não foi possivel enviar o e-mail, acesse a conta online");
 							}*/
@@ -124,7 +124,16 @@ class Event{
 						if($busca->num_rows > 0){
 							return array("code" => "0", "error" => "Hashtag já cadastrada para outro evento");
 						}
-						$sql = "update event set name = '".escapeString($_POST['name'])."', dt_event = '".escapeString(datebr_to_date($_POST['dt_event']))."', hashtag = '".escapeString($_POST['hashtag'])."', logo_event = '".escapeString($_POST['logo_event'])."',  automatic = '".escapeString($_POST['automatic'])."',have_screen = '".escapeString($_POST['have_screen'])."',have_print = '".escapeString($_POST['have_print'])."',id_print_template = ".setNULL(soNumber($_POST['id_print_template'])).", qtde_fotos = ".(int)soNumber($_POST['qtde_fotos'])." where id_event = ".soNumber($_POST['id_event']);
+						$sql = "update event set name = '".escapeString($_POST['name'])."', 
+						dt_event = '".escapeString(datebr_to_date($_POST['dt_event']))."',
+						hashtag = '".escapeString($_POST['hashtag'])."',
+						logo_event = '".escapeString($_POST['logo_event'])."',  
+						automatic = '".escapeString($_POST['automatic'])."',
+						have_screen = '".escapeString($_POST['have_screen'])."',
+						have_print = '".escapeString($_POST['have_print'])."',
+						id_print_template = ".setNULL(soNumber($_POST['id_print_template'])).", 
+						qtde_fotos = ".(int)soNumber($_POST['qtde_fotos'])." 
+						where id_event = ".soNumber($_POST['id_event']);
 						$result = Connection::query($sql);
 						if(Connection::getAffecteds() > 0){
 							return array("code" => "1", "result" => "OK");
@@ -140,6 +149,24 @@ class Event{
 			}
 		}else{	
 			return array("code" => "0", "error" => "Não autenticado");
+		}
+	}
+	
+	public function removeEvent(){
+		if(isset($_POST['id_event'])){
+			$sql = "select id_event from event where id_event = ".soNumber($_POST['id_event']);
+			$busca = Connection::query($sql);
+			if($busca->num_rows > 0){
+				$sql = "delete from event where id_event = ".soNumber($_POST['id_event']);
+				$result = Connection::query($sql);
+				if(Connection::getAffecteds() > 0){
+					return array("code" => "1", "result" => "OK");
+				}else{
+					return array("code" => "0", "error" => "Nenhum Dado foi removido");
+				}
+			}else{
+				return array("code" => "0", "error" => "Evento não encontrato");
+			}
 		}
 	}
 	
@@ -317,10 +344,7 @@ class Event{
 		}
 	}
 	
-	/*public function getHello(){
-		$this->exigeToken();
-		return array("Titulo" => "Hello Boy", "Descricao" =>"Muito muito Louco manolo");
-	}*/
+	
 	public function notFound(){
 		return "method-not-found";
 	}

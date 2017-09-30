@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,13 +45,13 @@ public class Webservice {
                 try {
                     photo.description = (String) json.getJSONObject("caption").get("text").toString();
                 } catch (JSONException ex) {
-                    System.out.println("Caracter especial no caption");
+                    JOptionPane.showMessageDialog(null, "Caracter especial no caption");
                 }
             } catch (JSONException e) {
-                System.out.println("Erro WS: " + e.getMessage() + " -- " + response);
+               JOptionPane.showMessageDialog(null, "Erro WS: " + e.getMessage() + " -- " + response);
             }
         } else {
-            System.out.println("Não tem responsta : " + urlPhoto.replace("[IDPhoto]", idPhoto));
+            JOptionPane.showMessageDialog(null, "Não tem responsta : " + urlPhoto.replace("[IDPhoto]", idPhoto));
         }
 
         return photo;
@@ -74,15 +75,15 @@ public class Webservice {
                     try {
                         photo.description = (String) json.getJSONObject("caption").get("text").toString();
                     } catch (JSONException ex) {
-                        System.out.println("Caracter especial no caption");
+                          JOptionPane.showMessageDialog(null,"Caracter especial no caption");
                     }
                     lista.add(photo);
                 }
             } catch (JSONException e) {
-                System.out.println("Erro WS: " + e.getMessage());
+                JOptionPane.showMessageDialog(null, "Erro WS: " + e.getMessage());
             }
         } else {
-            System.out.println("Não tem responsta");
+            JOptionPane.showMessageDialog(null, "Não tem responsta");
         }
         return lista;
     }
@@ -98,10 +99,10 @@ public class Webservice {
                     return true;
                 }
             } catch (JSONException e) {
-                System.out.println("Erro WS: " + e.getMessage());
+               JOptionPane.showMessageDialog(null, "Erro ao validar hashtag WS: " + e.getMessage());
             }
         } else {
-            System.out.println("Não tem responsta");
+            JOptionPane.showMessageDialog(null, "Não tem responsta");
         }
         return false;
     }
@@ -117,10 +118,10 @@ public class Webservice {
                     }
                 }
             } catch (JSONException e) {
-                System.out.println("Erro WS: " + e.getMessage());
+                JOptionPane.showMessageDialog(null, "Erro WS: " + e.getMessage());
             }
         } else {
-            System.out.println("Não tem resposta");
+            JOptionPane.showMessageDialog(null, "Não tem resposta");
         }
         return null;
     }
@@ -134,10 +135,10 @@ public class Webservice {
                 JSONObject json = jsonArray.optJSONObject(0);
                 return json;
             } catch (JSONException e) {
-                System.out.println("Erro WS: " + e.getMessage());
+                JOptionPane.showMessageDialog(null, "Erro ao buscar templates WS: " + e.getMessage());
             }
         } else {
-            System.out.println("Não tem resposta");
+            JOptionPane.showMessageDialog(null, "Não tem resposta");
         }
 
         return null;
@@ -160,10 +161,10 @@ public class Webservice {
                 JSONObject json = data.getJSONObject(0);
                 return json;
             } catch (JSONException e) {
-                System.out.println("Erro WS: " + e.getMessage());
+               JOptionPane.showMessageDialog(null, "Erro WS: " + e.getMessage());
             }
         } else {
-            System.out.println("Não tem responsta");
+            JOptionPane.showMessageDialog(null, "Não tem responsta");
         }
         return null;
     }
@@ -190,10 +191,10 @@ public class Webservice {
                 }
                 return lista;
             } catch (JSONException e) {
-                System.out.println("Erro WS: " + e.getMessage());
+                JOptionPane.showMessageDialog(null, "Erro ao listar os eventos! WS: " + e.getMessage());
             }
         } else {
-            System.out.println("Não tem responsta");
+            JOptionPane.showMessageDialog(null, "Não tem responsta do servidor");
         }
         return null;
     }
@@ -212,7 +213,7 @@ public class Webservice {
                 }
             }
         } catch (JSONException e) {
-            System.out.println("Erro WS: " + e.getMessage());
+           JOptionPane.showMessageDialog(null, "Erro ao inserir o evento! ws:"+ e.getMessage());
         }
         return false;
     }
@@ -222,7 +223,6 @@ public class Webservice {
             String params = event.toParams() + "&login=" + "contato@postprint.com.br" + "&name_machine=" + System.getProperty("user.name") + "&os_machine=" + System.getProperty("os.name");
             String response = this.request(urlWSEvent.replace("[method]", "updateEvent"), params, "POST");
             if (!response.trim().equals("")) {
-                System.out.println(response);
                 JSONArray jsonArray = new JSONArray("[" + response + "]");
                 JSONObject json = jsonArray.optJSONObject(0);
                 if (json.get("code").toString().equals("1")) {
@@ -232,7 +232,26 @@ public class Webservice {
                 }
             }
         } catch (JSONException e) {
-            System.out.println("Erro WS: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Erro ao atualizar o evento! ws:"+ e.getMessage());
+        }
+        return false;
+    }
+    
+     public boolean removeEvent(Event event) {
+        try {
+            String params = event.toParams() + "&login=" + "contato@postprint.com.br" + "&name_machine=" + System.getProperty("user.name") + "&os_machine=" + System.getProperty("os.name");
+            String response = this.request(urlWSEvent.replace("[method]", "removeEvent"), params, "POST");
+            if (!response.trim().equals("")) {
+                JSONArray jsonArray = new JSONArray("[" + response + "]");
+                JSONObject json = jsonArray.optJSONObject(0);
+                if (json.get("code").toString().equals("1")) {
+                    return true;
+                } else if (json.get("code").toString().equals("0")) {
+                    msgError = json.get("error").toString();
+                }
+            }
+        } catch (JSONException e) {
+            JOptionPane.showMessageDialog(null, "Erro ao remover o evento! ws:"+ e.getMessage());
         }
         return false;
     }
@@ -280,11 +299,11 @@ public class Webservice {
                     resultado = builder.toString();
                 }
             } else {
-                System.out.println("ResponseCode: " + urlConnection.getResponseMessage());
+                JOptionPane.showMessageDialog(null, "ResponseCode: " + urlConnection.getResponseMessage());
             }
 
         } catch (IOException e) {
-            System.out.println(e.toString());
+            JOptionPane.showMessageDialog(null, e.toString());
             ErrorProgram.addOnFile(e.getMessage());
         } finally {
             if (urlConnection != null) {

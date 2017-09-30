@@ -5,7 +5,6 @@ import classes.Photo;
 import classes.Webservice;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -29,12 +28,8 @@ public class FrmEvent extends javax.swing.JDialog {
     public FrmEvent(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        try {
-
-            ImageIcon image = new ImageIcon(ImageIO.read(new URL("http://distilleryimage0.ak.instagram.com/72e9204a3c1311e3bc2222000a1cbcce_7.jpg")));
-        } catch (IOException ex) {
-            Logger.getLogger(FrmEvent.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        btnSalvar.setEnabled(false);
+        btnAtualizar.setEnabled(false);
     }
 
     @SuppressWarnings("unchecked")
@@ -51,20 +46,21 @@ public class FrmEvent extends javax.swing.JDialog {
         jLabel4 = new javax.swing.JLabel();
         cmbTemplate = new javax.swing.JComboBox();
         jLabel6 = new javax.swing.JLabel();
-        chkAutomatic = new javax.swing.JCheckBox();
         btnImportMarca = new javax.swing.JButton();
         btnImportMarca1 = new javax.swing.JButton();
         jLabel8 = new javax.swing.JLabel();
         txtQtdeFotos = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
-        txtHashTag = new javax.swing.JTextField();
+        lbLogo = new javax.swing.JTextField();
         chkPrint = new javax.swing.JCheckBox();
         chkTelao = new javax.swing.JCheckBox();
+        chkAutomatic = new javax.swing.JCheckBox();
+        jLabel3 = new javax.swing.JLabel();
+        txtHashTag = new javax.swing.JTextField();
         btnCancelar = new javax.swing.JButton();
         btnSalvar = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
         btnDisponibilidade = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
+        btnAtualizar = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         jLayeredPane1 = new javax.swing.JLayeredPane();
@@ -131,13 +127,6 @@ public class FrmEvent extends javax.swing.JDialog {
 
         jLabel6.setText("Logo do Evento:");
 
-        chkAutomatic.setText("Impressão automática");
-        chkAutomatic.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                chkAutomaticActionPerformed(evt);
-            }
-        });
-
         btnImportMarca.setText("Importar imagem");
         btnImportMarca.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         btnImportMarca.addActionListener(new java.awt.event.ActionListener() {
@@ -156,51 +145,79 @@ public class FrmEvent extends javax.swing.JDialog {
 
         jLabel8.setText("Qtde de Fotos:");
 
+        lbLogo.setEnabled(false);
+
+        chkPrint.setText("Impressão de Fotos");
+
+        chkTelao.setText("Fotos no Telão");
+
+        chkAutomatic.setText("Impressão automática");
+        chkAutomatic.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chkAutomaticActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout pnlImpressaoLayout = new org.jdesktop.layout.GroupLayout(pnlImpressao);
         pnlImpressao.setLayout(pnlImpressaoLayout);
         pnlImpressaoLayout.setHorizontalGroup(
             pnlImpressaoLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(pnlImpressaoLayout.createSequentialGroup()
-                .addContainerGap()
                 .add(pnlImpressaoLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(pnlImpressaoLayout.createSequentialGroup()
-                        .add(jLabel8)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                        .add(txtQtdeFotos))
+                        .add(4, 4, 4)
+                        .add(chkPrint)
+                        .add(19, 19, 19)
+                        .add(chkTelao)
+                        .add(13, 13, 13)
+                        .add(chkAutomatic))
                     .add(pnlImpressaoLayout.createSequentialGroup()
+                        .add(12, 12, 12)
                         .add(jLabel4)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(cmbTemplate, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .add(pnlImpressaoLayout.createSequentialGroup()
-                        .add(jLabel6)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(btnImportMarca, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(pnlImpressaoLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(chkAutomatic)
+                        .add(cmbTemplate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 336, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(pnlImpressaoLayout.createSequentialGroup()
                         .add(11, 11, 11)
-                        .add(btnImportMarca1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .add(16, 16, 16))
+                        .add(jLabel8)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                        .add(txtQtdeFotos, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(pnlImpressaoLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(pnlImpressaoLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(pnlImpressaoLayout.createSequentialGroup()
+                                .add(jLabel6)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(lbLogo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 299, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(pnlImpressaoLayout.createSequentialGroup()
+                                .add(btnImportMarca, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                                .add(btnImportMarca1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 148, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
+                .add(14, 14, 14))
         );
         pnlImpressaoLayout.setVerticalGroup(
             pnlImpressaoLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(pnlImpressaoLayout.createSequentialGroup()
-                .add(15, 15, 15)
-                .add(pnlImpressaoLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel4)
-                    .add(cmbTemplate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(14, 14, 14)
+                .add(pnlImpressaoLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(chkPrint)
+                    .add(chkTelao)
                     .add(chkAutomatic))
-                .add(18, 18, 18)
+                .add(27, 27, 27)
                 .add(pnlImpressaoLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(btnImportMarca, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(jLabel6)
+                    .add(cmbTemplate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel4))
+                .add(10, 10, 10)
+                .add(pnlImpressaoLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(lbLogo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel6))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(pnlImpressaoLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(btnImportMarca)
                     .add(btnImportMarca1))
-                .add(18, 18, 18)
+                .add(11, 11, 11)
                 .add(pnlImpressaoLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel8)
-                    .add(txtQtdeFotos, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(24, 24, 24))
+                    .add(txtQtdeFotos, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel8)))
         );
 
         jLabel3.setText("HASHTAG:");
@@ -211,10 +228,6 @@ public class FrmEvent extends javax.swing.JDialog {
                 txtHashTagFocusLost(evt);
             }
         });
-
-        chkPrint.setText("Impressão de Fotos");
-
-        chkTelao.setText("Fotos no Telão");
 
         btnCancelar.setText("Cancelar");
         btnCancelar.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -242,10 +255,10 @@ public class FrmEvent extends javax.swing.JDialog {
             }
         });
 
-        jButton1.setText("Atualizar Preview");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        btnAtualizar.setText("Atualizar Preview");
+        btnAtualizar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                btnAtualizarActionPerformed(evt);
             }
         });
 
@@ -257,14 +270,6 @@ public class FrmEvent extends javax.swing.JDialog {
                 .addContainerGap()
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(pnlImpressao, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(jPanel1Layout.createSequentialGroup()
-                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jLabel3)
-                            .add(jPanel1Layout.createSequentialGroup()
-                                .add(chkPrint)
-                                .add(18, 18, 18)
-                                .add(chkTelao)))
-                        .add(0, 0, Short.MAX_VALUE))
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                             .add(jPanel1Layout.createSequentialGroup()
@@ -278,11 +283,14 @@ public class FrmEvent extends javax.swing.JDialog {
                         .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                             .add(jLabel2)
                             .add(txtData, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 128, Short.MAX_VALUE)
-                            .add(btnDisponibilidade, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .add(btnDisponibilidade, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .add(jPanel1Layout.createSequentialGroup()
+                        .add(jLabel3)
+                        .add(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
             .add(jPanel1Layout.createSequentialGroup()
                 .add(35, 35, 35)
-                .add(jButton1)
+                .add(btnAtualizar)
                 .add(18, 18, 18)
                 .add(btnCancelar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(21, 21, 21)
@@ -313,15 +321,11 @@ public class FrmEvent extends javax.swing.JDialog {
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(3, 3, 3)
                         .add(btnDisponibilidade, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .add(30, 30, 30)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(chkPrint)
-                    .add(chkTelao))
-                .add(7, 7, 7)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(pnlImpressao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jButton1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 54, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(btnAtualizar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 54, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(btnSalvar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .add(btnCancelar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
@@ -362,7 +366,7 @@ public class FrmEvent extends javax.swing.JDialog {
         lblImageFoto.setBounds(15, 74, 279, 279);
 
         lblFotoUsuario.setBackground(new java.awt.Color(0, 0, 0));
-        lblFotoUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Assets/foto_user.jpg"))); // NOI18N
+        lblFotoUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Assets/user.png"))); // NOI18N
         lblFotoUsuario.setMaximumSize(new java.awt.Dimension(55, 55));
         lblFotoUsuario.setMinimumSize(new java.awt.Dimension(20, 20));
         lblFotoUsuario.setOpaque(true);
@@ -399,7 +403,7 @@ public class FrmEvent extends javax.swing.JDialog {
                         .add(jLabel5)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jLayeredPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 403, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(17, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -408,9 +412,6 @@ public class FrmEvent extends javax.swing.JDialog {
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         loaded = false;
         if (photo == null) {
-
-            System.out.println("Abriu Janela");
-
             photo = new Photo();
             evento = new Event();
 
@@ -418,7 +419,6 @@ public class FrmEvent extends javax.swing.JDialog {
             if (listaTemplates != null) {
                 int tot = listaTemplates.getJSONObject(0).getJSONArray("result").length();
                 for (int i = 0; i < tot; i++) {
-                    System.out.println("Adicionou template no combo");
                     cmbTemplate.addItem(listaTemplates.getJSONObject(0).getJSONArray("result").getJSONObject(i).get("name"));
                 }
             }
@@ -444,6 +444,7 @@ public class FrmEvent extends javax.swing.JDialog {
 
                     this.id_template = evento.getId_print_template();
                     this.logo_event = evento.getLogo_event();
+                    this.lbLogo.setText(logo_event);
 
                     int tot = cmbTemplate.getItemCount();
                     for (int i = 0; i < tot; i++) {
@@ -541,14 +542,14 @@ public class FrmEvent extends javax.swing.JDialog {
             try {
                 ImageIcon image = new ImageIcon(ImageIO.read(file));
                 logo_event = file.getAbsolutePath();
-
+                lbLogo.setText(logo_event);
                 updatePreview();
 
             } catch (IOException ex) {
-                System.out.println("problem accessing file" + file.getAbsolutePath());
+                JOptionPane.showMessageDialog(null, "Erro ao importar "+ logo_event + ex );
             }
         } else {
-            System.out.println("File access cancelled by user.");
+           JOptionPane.showConfirmDialog(null, "Ação cancelada pelo usuário");
         }
     }//GEN-LAST:event_btnImportMarcaActionPerformed
 
@@ -573,10 +574,11 @@ public class FrmEvent extends javax.swing.JDialog {
             JOptionPane.showMessageDialog(null, "ATENÇÃO! Já existe fotos utilizando esta hashtag");
         } else {
             JOptionPane.showMessageDialog(null, "OK! hashtag disponível");
+             btnAtualizar.setEnabled(true);
         }
     }//GEN-LAST:event_btnDisponibilidadeActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void btnAtualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtualizarActionPerformed
         if (loaded == true) {
 
             int tot = listaTemplates.getJSONObject(0).getJSONArray("result").length();
@@ -585,6 +587,7 @@ public class FrmEvent extends javax.swing.JDialog {
                     try {
                         this.id_template = listaTemplates.getJSONObject(0).getJSONArray("result").getJSONObject(i).get("id_print_template").toString();
                         updatePreview();
+                        btnSalvar.setEnabled(true);
                         break;
                     } catch (JSONException ex) {
                         JOptionPane.showMessageDialog(null, "Problema ao atualizar preview. Error: " + ex.getMessage());
@@ -594,7 +597,7 @@ public class FrmEvent extends javax.swing.JDialog {
             }
         }
 
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_btnAtualizarActionPerformed
 
     private void txtNomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNomeActionPerformed
         
@@ -605,7 +608,6 @@ public class FrmEvent extends javax.swing.JDialog {
     }//GEN-LAST:event_cmbTemplateActionPerformed
 
     private void updatePreview() {
-        System.out.println("Update Preview");
         photo.nome_evento = txtNome.getText();
         photo.image_evento = this.logo_event;
         photo.updatePreview(this.id_template, lblImageFoto, lblTexto1, lblTexto2, lblNomeUsuario, lblFotoUsuario);
@@ -652,6 +654,7 @@ public class FrmEvent extends javax.swing.JDialog {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAtualizar;
     private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnDisponibilidade;
     private javax.swing.JButton btnImportMarca;
@@ -662,7 +665,6 @@ public class FrmEvent extends javax.swing.JDialog {
     private javax.swing.JCheckBox chkTelao;
     private javax.swing.JComboBox cmbTemplate;
     private javax.swing.JFileChooser fileChooser;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -674,6 +676,7 @@ public class FrmEvent extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JLayeredPane jLayeredPane1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JTextField lbLogo;
     private javax.swing.JLabel lblFotoUsuario;
     private javax.swing.JLabel lblImageFoto;
     private javax.swing.JLabel lblNomeUsuario;

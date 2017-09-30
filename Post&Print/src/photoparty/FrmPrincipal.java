@@ -42,35 +42,22 @@ import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 
 public class FrmPrincipal extends javax.swing.JFrame {
-
     private Event evento;
     private String hashtag;
-
     private Timer timer;
     private Timer timerAutomatico;
     private Timer timerPrinter;
-
     private final DefaultTableModel modelTblBaixadas;
     private DefaultTableModel modelTblImpressas;
     private DefaultTableModel modelTblTelao;
-    
     private FrmTelao frame;
-
     private String dirFotosEnviadas = "FotosEnviadas/";
     private String dirFotosFila = "FotosFila/";
     private String dirFotosImpressas = "FotosImpressas/";
     private String dirFotosTelao = "FotosTelao/";
-
     private List<String> listaFotosBaixadas;
     private List<String> listaFotosImpressas;
     private List<String> listaFotosTelao;
-
-    private String[] printsSelecteds;
-    private int totPrints = 0;
-    private int printCurrent = 0;
-    private int lastPrinterPrinted = 0;
-    private int current_image = 0;
-
     private boolean automatico = false;
     private boolean temTelao = false;
     private boolean temImpressao = false;
@@ -78,26 +65,22 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private int qtdeTelao = 0;
     private int qtdeImpressas = 0;
     private int totFotos = 0;
-
     private GraphicsDevice gd;
-
-    private static final Logger LOG = Logger.getLogger(FrmPrincipal.class.getName());
-
+    private JTable target;
     private Thread[] threadFila;
     private int TIME_HANDLER = 3000;
     private Timer timerSleep;
     private boolean SLEEP = false;
     public FilaPrinter fila;
     
-     public static final String[] acao = { "Imprimir/Telão", "Imprimir", "Telão", "Remover" };
+    public static final String[] acao = { "Imprimir/Telão", "Imprimir", "Telão", "Remover" };
 
     public FrmPrincipal() {
         initComponents();
-
+    
         popularCombo();
-
+      
         this.setIconImage(new ImageIcon(getClass().getClassLoader().getResource("Assets/logo_postprint.png")).getImage());
-
         evento = new Event();
         listaFotosBaixadas = new ArrayList<>();
         listaFotosImpressas = new ArrayList<>();
@@ -236,10 +219,9 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
             @Override
             public void mouseClicked(MouseEvent e) {
+                target = (JTable) e.getSource();
+                int row = target.getSelectedRow();
                 if (e.getClickCount() == 2 && tblEvento.isEnabled() == true) {
-                    JTable target = (JTable) e.getSource();
-                    int row = target.getSelectedRow();
-
                     FrmEvent frm = new FrmEvent(FrmPrincipal.this, true);
                     frm.id_event = target.getValueAt(row, 0).toString();
                     frm.setLocationRelativeTo(null);
@@ -437,7 +419,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
             }
         }
         SLEEP = false;
-        lastPrinterPrinted = 0;
     }
 
     private Photo getPhoto(String nameFile) {
@@ -449,9 +430,9 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private void sendToPrint(String nameFile) {
         Impressora printer = new Impressora();
         Photo photo;
-
+        
+       
         try {
-            //System.out.println("NOME DO ARQUIVO: "+nameFile);
             File arquivo = new File(dirFotosEnviadas + hashtag + "/" + nameFile);
             if (temTelao) {
                 String orig = dirFotosEnviadas + hashtag + "/" + nameFile;
@@ -474,14 +455,48 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 photo.createImageFromTemplate(arquivo, dirFotosFila + hashtag + "/", evento.getId_print_template());
 
                 printer.selecionaImpressoras(comboImpressoras.getSelectedItem().toString());
+               
+                //stream = new FileInputStream(fileName);
+                //File f = new File(fileName);
+                //int size = (int) f.length();
+                //byte[] file = new byte[size];
+                //stream.read(file);
+               
+               // fila.printer = imp;
+               // fila.fileName = photo.fotoFromTemplate.getPath();
+               // fila.table = modelTblImpressas;
+               // fila.run();
                 printer.imprime(photo.fotoFromTemplate.getPath());
-             
+              // printerprintImagesInDirectory     
+               
             }
         } catch (IOException ex) {
+              JOptionPane.showMessageDialog(null, ex+ "Erro ao enviar para impressão");
         }
-
     }
 
+    public class FilaPrinter implements Runnable {
+        public String fileName = "";
+        public Impressora printer;
+
+        public FilaPrinter(Impressora impressao, String image) {
+            fileName = image;
+            printer = impressao;
+        }
+
+        @Override
+        public void run() {
+
+            if (printer.imprime(fileName)) {
+                qtdeImpressas++;
+                if (qtdeImpressas == totFotos) {
+                    JOptionPane.showMessageDialog(null, "ATENÇÃO! Quantidade de fotos impressas atingiu a quantidade de fotos total do Evento");
+                }
+                lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
+            }
+        }
+    }
+    
     private void loadFotosBaixadas() {
         File dir = new File(dirFotosEnviadas + hashtag + "/");
         if (dir.isDirectory()) {
@@ -577,6 +592,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         lblNomeEvento = new javax.swing.JLabel();
         btnAutomatico = new javax.swing.JButton();
+        btnRmEvento = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Post&Print");
@@ -663,7 +679,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(lbQtdBaixadas, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE)
         );
         labelBaixadasLayout.setVerticalGroup(
             labelBaixadasLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -833,12 +849,19 @@ public class FrmPrincipal extends javax.swing.JFrame {
         lblNomeEvento.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
         lblNomeEvento.setText("Nome do Evento");
 
-        btnAutomatico.setText("Automático");
+        btnAutomatico.setText("Iniciar Automático");
         btnAutomatico.setToolTipText("Ação automática configurada no cadastro do evento");
         btnAutomatico.setEnabled(false);
         btnAutomatico.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnAutomaticoActionPerformed(evt);
+            }
+        });
+
+        btnRmEvento.setText("Remover Evento");
+        btnRmEvento.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRmEventoActionPerformed(evt);
             }
         });
 
@@ -854,15 +877,12 @@ public class FrmPrincipal extends javax.swing.JFrame {
                         .add(jLabel2)
                         .add(9, 9, 9)
                         .add(lblNomeEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 624, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(108, 108, 108)
-                        .add(btnAutomatico, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 122, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(8, 8, 8)
-                        .add(btnExibirTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 122, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(btnStartStopEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 166, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(btnStartStopEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 115, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(btnExibirTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 161, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(btnAddEvento)
-                        .add(0, 0, Short.MAX_VALUE))
+                        .add(btnAutomatico, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 162, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jLabel3)
@@ -872,7 +892,10 @@ public class FrmPrincipal extends javax.swing.JFrame {
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(layout.createSequentialGroup()
                                 .add(jLabel1)
-                                .add(0, 0, Short.MAX_VALUE))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .add(btnRmEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 138, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(btnAddEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 135, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                             .add(jScrollPane1))))
                 .addContainerGap())
             .add(pnlImpressoes, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -880,8 +903,11 @@ public class FrmPrincipal extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(11, 11, 11)
-                .add(jLabel1)
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                    .add(jLabel1)
+                    .add(btnAddEvento, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 43, Short.MAX_VALUE)
+                    .add(btnRmEvento, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .add(6, 6, 6)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
@@ -893,24 +919,18 @@ public class FrmPrincipal extends javax.swing.JFrame {
                     .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 184, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                     .add(layout.createSequentialGroup()
+                        .add(37, 37, 37)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .add(37, 37, 37)
-                                .add(jLabel2))
-                            .add(layout.createSequentialGroup()
-                                .add(37, 37, 37)
-                                .add(lblNomeEvento))
-                            .add(layout.createSequentialGroup()
-                                .add(11, 11, 11)
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                                    .add(btnAutomatico, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                                        .add(btnAddEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .add(btnStartStopEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .add(btnExibirTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
+                            .add(jLabel2)
+                            .add(lblNomeEvento))
                         .add(370, 370, 370))
                     .add(layout.createSequentialGroup()
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(btnAutomatico, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(btnExibirTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(btnStartStopEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(pnlImpressoes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 360, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())))
         );
@@ -919,7 +939,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAddEventoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddEventoActionPerformed
-        
         FrmEvent frm = new FrmEvent(this, true);
         frm.setLocationRelativeTo(null);
         frm.setVisible(true);
@@ -998,13 +1017,11 @@ public class FrmPrincipal extends javax.swing.JFrame {
         
         totFotos = Integer.parseInt(tblEvento.getValueAt(row, 7).toString());
         lbQtdImpressas.setText(tblEvento.getValueAt(row, 7).toString());
-
         btnStartStopEvento.setText("Parar Evento");
         btnStartStopEvento.setBackground(Color.RED);
         btnStartStopEvento.setForeground(Color.WHITE);
         btnStartStopEvento.setOpaque(true);
         btnStartStopEvento.setBorderPainted(false);
-
         lblNomeEvento.setText(tblEvento.getValueAt(row, 1).toString());
         hashtag = tblEvento.getValueAt(row, 2).toString();
 
@@ -1035,7 +1052,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 dirTelao.mkdir();
             }
         }
-
         tblEvento.setEnabled(false);
 
         return true;
@@ -1045,12 +1061,10 @@ public class FrmPrincipal extends javax.swing.JFrame {
         btnAutomatico.setEnabled(false);
         btnExibirTelao.setEnabled(false);
         btnStartStopEvento.setText("Iniciar Evento");
-
         btnStartStopEvento.setBackground(new Color(238, 238, 238));
         btnStartStopEvento.setForeground(Color.BLACK);
         btnStartStopEvento.setOpaque(false);
         btnStartStopEvento.setBorderPainted(true);
-
         lblNomeEvento.setText("Nome do Evento");
         hashtag = null;
         automatico = false;
@@ -1063,7 +1077,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
         lbQtdImpressas.setText("0");
         limpaTabelas();
         stopPrint();
-       
          
         if (frame != null) {
             frame.setVisible(false);
@@ -1076,7 +1089,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
     }
 
     private void limpaTabelas() {
-       
         if (modelTblBaixadas != null) {
             if (modelTblBaixadas.getRowCount() > 0) {
                 for (int i = modelTblBaixadas.getRowCount() - 1; i > -1; i--) {
@@ -1112,34 +1124,62 @@ public class FrmPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowOpened
 
     private void btnExibirTelaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExibirTelaoActionPerformed
-       
         try {
             setupFullScreen();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            JOptionPane.showConfirmDialog(null, e.getMessage());
         }
     }//GEN-LAST:event_btnExibirTelaoActionPerformed
 
     private void btnAutomaticoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAutomaticoActionPerformed
-       startPrint();
+        if (btnAutomatico.getText().equals("Iniciar Automático")) {
+            btnAutomatico.setText("Parar Automático");
+            btnAutomatico.setBackground(Color.ORANGE);
+            btnAutomatico.setForeground(Color.BLACK);
+            btnAutomatico.setOpaque(true);
+            btnAutomatico.setBorderPainted(false);
+            startPrint();
+        } else if (btnAutomatico.getText().equals("Parar Automático")) {
+            int dialogResult = JOptionPane.showConfirmDialog(null, "Deseja realmente parar a ação automática?", "Atenção", JOptionPane.YES_NO_OPTION);
+            if (dialogResult == JOptionPane.YES_OPTION) {
+                btnAutomatico.setText("Iniciar Automático");
+                btnAutomatico.setBackground(new Color(238, 238, 238));
+                btnAutomatico.setForeground(Color.BLACK);
+                btnAutomatico.setOpaque(false);
+                btnAutomatico.setBorderPainted(true);
+                        
+                stopPrint();
+            }
+        }
     }//GEN-LAST:event_btnAutomaticoActionPerformed
 
     private void tabelaFotosTelaoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelaFotosTelaoMouseClicked
 
     }//GEN-LAST:event_tabelaFotosTelaoMouseClicked
 
+    private void btnRmEventoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRmEventoActionPerformed
+        if (tblEvento.getSelectedRow() < 0) {
+            JOptionPane.showMessageDialog(null, "Por favor, selecione um evento na tabela acima");
+        } else{
+            int dialogResult = JOptionPane.showConfirmDialog(null, "Deseja realmente remover o evento?", "Atenção", JOptionPane.YES_NO_OPTION);
+            if (dialogResult == JOptionPane.YES_OPTION) {
+            int row = target.getSelectedRow();
+            evento.loadEvent(target.getValueAt(row, 0).toString());
+            evento.remove();
+            }
+        }
+    }//GEN-LAST:event_btnRmEventoActionPerformed
+
      private void startPrint() {
         if (automatico) {
-         
             ActionListener action2 = (@SuppressWarnings("unused") java.awt.event.ActionEvent e) -> {
 
                 (new Thread() {
                     @Override
                     public void run() {
                         try {
-                            Thread.sleep(1000);
+                            Thread.sleep(5000);
                             if (tabelaFotosBaixadas.getRowCount() > 0) {
-                               
                                     final Object[] obj = new Object[3];
                                     obj[0] = tabelaFotosBaixadas.getValueAt(0, 0);
                                     obj[1] = tabelaFotosBaixadas.getValueAt(0, 1).toString();
@@ -1156,10 +1196,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                                         lbQtdTelao.setText(String.valueOf(qtdeTelao));
                                         modelTblTelao.addRow(obj);
                                     }
-
                                         modelTblBaixadas.removeRow(0);
-                                    
-                             
                             }
                         } catch (InterruptedException ex) {
                             Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
@@ -1169,28 +1206,24 @@ public class FrmPrincipal extends javax.swing.JFrame {
             };
 
             timerAutomatico = new Timer(10000, action2);
-             timerAutomatico.start();
+            timerAutomatico.start();
       
-
             ActionListener action3 = (@SuppressWarnings("unused") java.awt.event.ActionEvent e) -> {
             };
             timerPrinter = new Timer(TIME_HANDLER, action3);
             timerPrinter.start();
 
             SLEEP = false;
-            lastPrinterPrinted = 0;
+          
         }
     }
     
     private void createFrameAtLocation(Point p, FrmTelao frame) {
-
         frame.setLocation(p);
         frame.pack();
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         if (gd.isFullScreenSupported()) {
-            System.out.println("Fullscreen permited");
-
             frame.setVisible(false);
             frame.dispose();
             frame.setUndecorated(true);
@@ -1199,13 +1232,10 @@ public class FrmPrincipal extends javax.swing.JFrame {
             frame.setVisible(true);
             frame.setAlwaysOnTop(true);
             frame.initTimer();
-
         }
-
     }
 
     public void setupFullScreen() {
-
         EventQueue.invokeLater(() -> {
             Point p1 = null;
             Point p2 = null;
@@ -1223,7 +1253,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
             
             if (frame == null) {
                 frame = new FrmTelao();
-                
             }
             
             frame.hashtag = hashtag;
@@ -1299,14 +1328,11 @@ public class FrmPrincipal extends javax.swing.JFrame {
               }
           }  
        }  
-     
-    
        return dir.delete();  
    }  
    
 
     class ProcessoThread extends Thread {
-
         public String action;
 
         @Override
@@ -1316,55 +1342,8 @@ public class FrmPrincipal extends javax.swing.JFrame {
             }
         }
     }
-
-    public class FilaPrinter implements Runnable {
-
-        public String fileName = "";
-        public Impressora printer;
-        private MyDefaultTableModel table;
-
-        public FilaPrinter(Impressora impressao, String image) {
-            fileName = image;
-            printer = impressao;
-        }
-
-        @Override
-        public void run() {
-
-            if (printer.imprime(fileName)) {
-                qtdeImpressas++;
-                if (qtdeImpressas == totFotos) {
-                    JOptionPane.showMessageDialog(null, "ATENÇÃO! Quantidade de fotos impressas atingiu a quantidade de fotos total do Evento");
-                }
-                lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
-            }
-        }
-    }
-
-    /**
-     * @param args the command line arguments
-     */
+    
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(FrmPrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        
-        //</editor-fold>
-
-        /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
             new FrmPrincipal().setVisible(true);
         });
@@ -1375,6 +1354,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton btnAddEvento;
     private javax.swing.JButton btnAutomatico;
     private javax.swing.JButton btnExibirTelao;
+    private javax.swing.JButton btnRmEvento;
     private javax.swing.JButton btnStartStopEvento;
     private javax.swing.JComboBox<String> comboImpressoras;
     private javax.swing.JLabel jLabel1;

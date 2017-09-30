@@ -1,3 +1,0 @@
-00:12:14 connect timed out
-22:41:51 Read timed out
-22:42:11 Read timed out

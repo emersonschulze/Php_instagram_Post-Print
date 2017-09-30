@@ -66,7 +66,7 @@
                       <Component id="jLayeredPane1" min="-2" pref="403" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace pref="17" max="32767" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -88,17 +88,6 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="pnlImpressao" alignment="0" max="32767" attributes="0"/>
-                      <Group type="102" attributes="0">
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="chkPrint" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace type="separate" max="-2" attributes="0"/>
-                                  <Component id="chkTelao" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                          </Group>
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                      </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Group type="103" groupAlignment="1" max="-2" attributes="0">
                               <Group type="102" attributes="0">
@@ -118,12 +107,16 @@
                               <Component id="btnDisponibilidade" alignment="0" max="32767" attributes="0"/>
                           </Group>
                       </Group>
+                      <Group type="102" attributes="0">
+                          <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                      </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
-                  <Component id="jButton1" min="-2" max="-2" attributes="0"/>
+                  <Component id="btnAtualizar" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="btnCancelar" max="32767" attributes="0"/>
                   <EmptySpace min="-2" pref="21" max="-2" attributes="0"/>
@@ -163,16 +156,11 @@
                           <Component id="btnDisponibilidade" max="32767" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace min="-2" pref="30" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="chkPrint" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="chkTelao" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace min="-2" pref="7" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Component id="pnlImpressao" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace type="unrelated" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jButton1" alignment="0" min="-2" pref="54" max="-2" attributes="0"/>
+                      <Component id="btnAtualizar" alignment="0" min="-2" pref="54" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="btnSalvar" alignment="3" min="-2" pref="58" max="-2" attributes="0"/>
                           <Component id="btnCancelar" alignment="3" min="-2" pref="58" max="-2" attributes="0"/>
@@ -221,57 +209,76 @@
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                              <Component id="txtQtdeFotos" max="32767" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <EmptySpace min="4" pref="4" max="-2" attributes="0"/>
+                              <Component id="chkPrint" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace min="19" pref="19" max="-2" attributes="0"/>
+                              <Component id="chkTelao" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace min="13" pref="13" max="-2" attributes="0"/>
+                              <Component id="chkAutomatic" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
+                              <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                               <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="cmbTemplate" max="32767" attributes="0"/>
+                              <Component id="cmbTemplate" min="-2" pref="336" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
-                              <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="btnImportMarca" max="32767" attributes="0"/>
-                          </Group>
-                      </Group>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="chkAutomatic" min="-2" max="-2" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="-2" pref="11" max="-2" attributes="0"/>
-                              <Component id="btnImportMarca1" max="32767" attributes="0"/>
+                              <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="txtQtdeFotos" min="-2" pref="140" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Group type="102" attributes="0">
+                                      <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="lbLogo" min="-2" pref="299" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Group type="102" attributes="0">
+                                      <Component id="btnImportMarca" min="-2" pref="140" max="-2" attributes="0"/>
+                                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                      <Component id="btnImportMarca1" min="-2" pref="148" max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
                           </Group>
                       </Group>
-                      <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="cmbTemplate" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="chkAutomatic" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <EmptySpace min="14" pref="14" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="chkPrint" min="-2" max="-2" attributes="0"/>
+                          <Component id="chkTelao" min="-2" max="-2" attributes="0"/>
+                          <Component id="chkAutomatic" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <EmptySpace min="27" pref="27" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="btnImportMarca" alignment="3" max="32767" attributes="0"/>
+                          <Component id="cmbTemplate" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="lbLogo" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="btnImportMarca" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnImportMarca1" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="11" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabel8" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="txtQtdeFotos" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel8" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -297,14 +304,6 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Logo do Evento:"/>
               </Properties>
-            </Component>
-            <Component class="javax.swing.JCheckBox" name="chkAutomatic">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Impress&#xe3;o autom&#xe1;tica"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkAutomaticActionPerformed"/>
-              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="btnImportMarca">
               <Properties>
@@ -335,6 +334,29 @@
             </Component>
             <Component class="javax.swing.JTextField" name="txtQtdeFotos">
             </Component>
+            <Component class="javax.swing.JTextField" name="lbLogo">
+              <Properties>
+                <Property name="enabled" type="boolean" value="false"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="chkPrint">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Impress&#xe3;o de Fotos"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="chkTelao">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Fotos no Tel&#xe3;o"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="chkAutomatic">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Impress&#xe3;o autom&#xe1;tica"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkAutomaticActionPerformed"/>
+              </Events>
+            </Component>
           </SubComponents>
         </Container>
         <Component class="javax.swing.JLabel" name="jLabel3">
@@ -351,16 +373,6 @@
           <Events>
             <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="txtHashTagFocusLost"/>
           </Events>
-        </Component>
-        <Component class="javax.swing.JCheckBox" name="chkPrint">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Impress&#xe3;o de Fotos"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JCheckBox" name="chkTelao">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Fotos no Tel&#xe3;o"/>
-          </Properties>
         </Component>
         <Component class="javax.swing.JButton" name="btnCancelar">
           <Properties>
@@ -400,12 +412,12 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDisponibilidadeActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="jButton1">
+        <Component class="javax.swing.JButton" name="btnAtualizar">
           <Properties>
             <Property name="text" type="java.lang.String" value="Atualizar Preview"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton1ActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAtualizarActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>
@@ -504,7 +516,7 @@
               <Color blue="0" green="0" red="0" type="rgb"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/Assets/foto_user.jpg"/>
+              <Image iconType="3" name="/Assets/user.png"/>
             </Property>
             <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
               <Dimension value="[55, 55]"/>

@@ -1,10 +1,10 @@
 package classes;
 
+import javax.swing.JOptionPane;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class Event {
-
     private String id_event;
     private String name;
     private String dt_event;
@@ -43,7 +43,20 @@ public class Event {
                 return ws.msgError;
             }
         } catch (Exception e) {
-            System.out.println("Insert event: " + e.getMessage());
+             JOptionPane.showMessageDialog(null, "Erro ao inserir o evento! "+ e.getMessage());
+        }
+        return null;
+    }
+    
+    public String remove() {
+        try {
+            if (ws.removeEvent(this)) {
+                return "OK";
+            } else {
+                return ws.msgError;
+            }
+        } catch (Exception e) {
+             JOptionPane.showMessageDialog(null, "Erro ao remover o evento! "+ e.getMessage());
         }
         return null;
     }
@@ -56,7 +69,7 @@ public class Event {
                 return ws.msgError;
             }
         } catch (Exception e) {
-            System.out.println("Insert event: " + e.getMessage());
+             JOptionPane.showMessageDialog(null, "Erro ao atualizar o evento! "+ e.getMessage());
         }
         return null;
     }
