@@ -588,7 +588,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
-        comboImpressoras = new javax.swing.JComboBox<>();
+        comboImpressoras = new javax.swing.JComboBox<String>();
         jLabel2 = new javax.swing.JLabel();
         lblNomeEvento = new javax.swing.JLabel();
         btnAutomatico = new javax.swing.JButton();
@@ -622,6 +622,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         tblEvento.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane1.setViewportView(tblEvento);
 
+        btnAddEvento.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Assets/add_event.png"))); // NOI18N
         btnAddEvento.setText("Adicionar Evento");
         btnAddEvento.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         btnAddEvento.addActionListener(new java.awt.event.ActionListener() {
@@ -630,6 +631,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
             }
         });
 
+        btnStartStopEvento.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Assets/iniciar.png"))); // NOI18N
         btnStartStopEvento.setText("Iniciar Evento");
         btnStartStopEvento.setToolTipText("Inicia um evento atualizando imagens a cada 10 segundos");
         btnStartStopEvento.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -679,7 +681,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(lbQtdBaixadas, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE)
+            .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
         );
         labelBaixadasLayout.setVerticalGroup(
             labelBaixadasLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -729,7 +731,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(lbQtdImpressas, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .add(jScrollPane4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 420, Short.MAX_VALUE)
+            .add(jScrollPane4)
         );
         labelImpresaLayout.setVerticalGroup(
             labelImpresaLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -785,8 +787,8 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 .add(jLabel7)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(lbQtdTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .add(jScrollPane6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+                .addContainerGap(151, Short.MAX_VALUE))
+            .add(jScrollPane6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
         labelTelaoLayout.setVerticalGroup(
             labelTelaoLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -803,12 +805,11 @@ public class FrmPrincipal extends javax.swing.JFrame {
         pnlImpressoesLayout.setHorizontalGroup(
             pnlImpressoesLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(pnlImpressoesLayout.createSequentialGroup()
-                .add(4, 4, 4)
-                .add(labelBaixadas, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(labelBaixadas, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(labelImpresa, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(labelTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 412, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(labelTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 383, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
         pnlImpressoesLayout.setVerticalGroup(
             pnlImpressoesLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -816,14 +817,14 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 .addContainerGap()
                 .add(pnlImpressoesLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(labelTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(pnlImpressoesLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(labelBaixadas, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 330, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(labelImpresa, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                    .add(labelBaixadas, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 330, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .add(3, 3, 3))
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, labelImpresa, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
         );
 
         labelTelao.getAccessibleContext().setAccessibleName("Fotos Telao");
 
+        btnExibirTelao.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Assets/telao.png"))); // NOI18N
         btnExibirTelao.setText("Exibir Telão");
         btnExibirTelao.setToolTipText("Exibir imagem em telão após adicionadas a tabela Fotos Telão.");
         btnExibirTelao.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -849,6 +850,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         lblNomeEvento.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
         lblNomeEvento.setText("Nome do Evento");
 
+        btnAutomatico.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Assets/update.png"))); // NOI18N
         btnAutomatico.setText("Iniciar Automático");
         btnAutomatico.setToolTipText("Ação automática configurada no cadastro do evento");
         btnAutomatico.setEnabled(false);
@@ -858,6 +860,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
             }
         });
 
+        btnRmEvento.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Assets/rm_event.png"))); // NOI18N
         btnRmEvento.setText("Remover Evento");
         btnRmEvento.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -882,7 +885,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(btnExibirTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 161, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(btnAutomatico, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 162, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(btnAutomatico, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 174, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jLabel3)
@@ -893,9 +896,9 @@ public class FrmPrincipal extends javax.swing.JFrame {
                             .add(layout.createSequentialGroup()
                                 .add(jLabel1)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .add(btnRmEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 138, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(btnRmEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 180, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(btnAddEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 135, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .add(btnAddEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 163, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                             .add(jScrollPane1))))
                 .addContainerGap())
             .add(pnlImpressoes, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -903,11 +906,12 @@ public class FrmPrincipal extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(jLabel1)
-                    .add(btnAddEvento, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 43, Short.MAX_VALUE)
-                    .add(btnRmEvento, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(btnAddEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(btnRmEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .add(6, 6, 6)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
@@ -1153,10 +1157,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnAutomaticoActionPerformed
 
-    private void tabelaFotosTelaoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelaFotosTelaoMouseClicked
-
-    }//GEN-LAST:event_tabelaFotosTelaoMouseClicked
-
     private void btnRmEventoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRmEventoActionPerformed
         if (tblEvento.getSelectedRow() < 0) {
             JOptionPane.showMessageDialog(null, "Por favor, selecione um evento na tabela acima");
@@ -1169,6 +1169,10 @@ public class FrmPrincipal extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_btnRmEventoActionPerformed
+
+    private void tabelaFotosTelaoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelaFotosTelaoMouseClicked
+
+    }//GEN-LAST:event_tabelaFotosTelaoMouseClicked
 
      private void startPrint() {
         if (automatico) {

@@ -127,7 +127,8 @@ public class FrmEvent extends javax.swing.JDialog {
 
         jLabel6.setText("Logo do Evento:");
 
-        btnImportMarca.setText("Importar imagem");
+        btnImportMarca.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Assets/addLogo.png"))); // NOI18N
+        btnImportMarca.setText("Importar Logo");
         btnImportMarca.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         btnImportMarca.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -135,7 +136,8 @@ public class FrmEvent extends javax.swing.JDialog {
             }
         });
 
-        btnImportMarca1.setText("Remover imagem");
+        btnImportMarca1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Assets/reImage.png"))); // NOI18N
+        btnImportMarca1.setText("Remover Logo");
         btnImportMarca1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         btnImportMarca1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -185,19 +187,19 @@ public class FrmEvent extends javax.swing.JDialog {
                         .addContainerGap()
                         .add(pnlImpressaoLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                             .add(pnlImpressaoLayout.createSequentialGroup()
+                                .add(btnImportMarca, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 152, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(btnImportMarca1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 148, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(pnlImpressaoLayout.createSequentialGroup()
                                 .add(jLabel6)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(lbLogo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 299, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(pnlImpressaoLayout.createSequentialGroup()
-                                .add(btnImportMarca, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                .add(btnImportMarca1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 148, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
+                                .add(lbLogo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 307, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
                 .add(14, 14, 14))
         );
         pnlImpressaoLayout.setVerticalGroup(
             pnlImpressaoLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(pnlImpressaoLayout.createSequentialGroup()
-                .add(14, 14, 14)
+                .add(24, 24, 24)
                 .add(pnlImpressaoLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(chkPrint)
                     .add(chkTelao)
@@ -229,6 +231,7 @@ public class FrmEvent extends javax.swing.JDialog {
             }
         });
 
+        btnCancelar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Assets/cancel.png"))); // NOI18N
         btnCancelar.setText("Cancelar");
         btnCancelar.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         btnCancelar.addActionListener(new java.awt.event.ActionListener() {
@@ -237,6 +240,7 @@ public class FrmEvent extends javax.swing.JDialog {
             }
         });
 
+        btnSalvar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Assets/ok.png"))); // NOI18N
         btnSalvar.setText("Salvar");
         btnSalvar.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         btnSalvar.addActionListener(new java.awt.event.ActionListener() {
@@ -248,6 +252,7 @@ public class FrmEvent extends javax.swing.JDialog {
         jLabel7.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
         jLabel7.setText("#");
 
+        btnDisponibilidade.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Assets/search.png"))); // NOI18N
         btnDisponibilidade.setText("Disponibilidade");
         btnDisponibilidade.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -255,6 +260,7 @@ public class FrmEvent extends javax.swing.JDialog {
             }
         });
 
+        btnAtualizar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Assets/update.png"))); // NOI18N
         btnAtualizar.setText("Atualizar Preview");
         btnAtualizar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -282,20 +288,18 @@ public class FrmEvent extends javax.swing.JDialog {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                             .add(jLabel2)
-                            .add(txtData, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 128, Short.MAX_VALUE)
+                            .add(txtData)
                             .add(btnDisponibilidade, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(jLabel3)
-                        .add(0, 0, Short.MAX_VALUE)))
+                        .add(0, 0, Short.MAX_VALUE))
+                    .add(jPanel1Layout.createSequentialGroup()
+                        .add(btnAtualizar)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(btnCancelar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(btnSalvar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 135, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
-            .add(jPanel1Layout.createSequentialGroup()
-                .add(35, 35, 35)
-                .add(btnAtualizar)
-                .add(18, 18, 18)
-                .add(btnCancelar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(21, 21, 21)
-                .add(btnSalvar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 112, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(26, 26, 26))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -324,11 +328,10 @@ public class FrmEvent extends javax.swing.JDialog {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(pnlImpressao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(btnAtualizar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 54, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(btnSalvar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(btnCancelar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(btnSalvar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(btnCancelar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(btnAtualizar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 54, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .add(11, 11, 11))
         );
 
@@ -366,12 +369,12 @@ public class FrmEvent extends javax.swing.JDialog {
         lblImageFoto.setBounds(15, 74, 279, 279);
 
         lblFotoUsuario.setBackground(new java.awt.Color(0, 0, 0));
-        lblFotoUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Assets/user.png"))); // NOI18N
+        lblFotoUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Assets/avatar.png"))); // NOI18N
         lblFotoUsuario.setMaximumSize(new java.awt.Dimension(55, 55));
         lblFotoUsuario.setMinimumSize(new java.awt.Dimension(20, 20));
         lblFotoUsuario.setOpaque(true);
         jLayeredPane1.add(lblFotoUsuario);
-        lblFotoUsuario.setBounds(15, 360, 27, 27);
+        lblFotoUsuario.setBounds(15, 360, 30, 30);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -532,6 +535,7 @@ public class FrmEvent extends javax.swing.JDialog {
 
     private void btnImportMarca1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImportMarca1ActionPerformed
         this.logo_event = "";
+        lbLogo.setText("");
         updatePreview();
     }//GEN-LAST:event_btnImportMarca1ActionPerformed
 
