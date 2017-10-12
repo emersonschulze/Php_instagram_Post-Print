@@ -1,0 +1,25 @@
+21:28:30 connect timed out
+21:32:53 connect timed out
+21:32:55 No route to host: connect
+21:32:59 Read timed out
+21:33:02 postprint.com.br
+21:33:03 api.instagram.com
+21:33:05 api.instagram.com
+21:33:08 postprint.com.br
+21:33:13 postprint.com.br
+21:33:16 api.instagram.com
+21:33:17 api.instagram.com
+21:33:37 api.instagram.com
+21:33:44 api.instagram.com
+21:34:11 api.instagram.com
+21:34:35 api.instagram.com
+21:34:51 api.instagram.com
+21:34:58 api.instagram.com
+21:35:29 api.instagram.com
+21:35:49 api.instagram.com
+21:36:07 api.instagram.com
+21:36:11 api.instagram.com
+21:36:14 api.instagram.com
+21:36:43 api.instagram.com
+21:36:48 api.instagram.com
+21:37:03 api.instagram.com

@@ -152,16 +152,13 @@ public class FrmTelao extends javax.swing.JFrame {
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
        
-        System.out.println("Abriu Janela");
-        //initTimer();
-
+      
     }//GEN-LAST:event_formWindowOpened
 
     class RemindTask extends TimerTask {
 
         @Override
         public void run() {
-            System.out.println("Entrou no Run");
             File dir = new File(dirFotosTelao + hashtag + "/");
             if (dir.isDirectory()) {
                 File arquivos[] = dir.listFiles();
@@ -190,15 +187,10 @@ public class FrmTelao extends javax.swing.JFrame {
                                 lblNomeUser.setText(photo.nome_usuario);
                                 lblFotoUsuario.setIcon(imageUser);
                                 lblPhoto.setIcon(image);
-
-                                System.out.println("Setou uma imagem");
-
-                            } else {
-                                System.out.println("Não tem id foto: " + info[1]);
                             }
 
                         } catch (MalformedURLException e) {
-                            System.out.println("Url mal formada: " + photo.foto_usuario + " - " + e.getMessage());
+                            Logger.getLogger(FrmTelao.class.getName()).log(Level.SEVERE, null, e);
                         } catch (Exception ex) {
                             Logger.getLogger(FrmTelao.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -216,9 +208,7 @@ public class FrmTelao extends javax.swing.JFrame {
 
     public void initTimer() {
         if (timerPhotos == null) {
-            System.out.println("Iniciou Timer");
-
-            lblDescription.setText("");
+             lblDescription.setText("");
             lblNomeUser.setText("");
             lblFotoUsuario.setIcon(null);
             lblPhoto.setIcon(null);
@@ -239,7 +229,7 @@ public class FrmTelao extends javax.swing.JFrame {
                 lblLogoEvento.setText(pathLogoEvento);
                 
             } catch (ImagingOpException | IOException | IllegalArgumentException e) {
-                
+                Logger.getLogger(FrmTelao.class.getName()).log(Level.SEVERE, null, e); 
             }
 
         }

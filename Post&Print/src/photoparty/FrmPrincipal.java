@@ -47,9 +47,9 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private Timer timer;
     private Timer timerAutomatico;
     private Timer timerPrinter;
-    private final DefaultTableModel modelTblBaixadas;
-    private DefaultTableModel modelTblImpressas;
-    private DefaultTableModel modelTblTelao;
+    private final MyDefaultTableModel modelTblBaixadas;
+    private MyDefaultTableModel modelTblImpressas;
+    private MyDefaultTableModel modelTblTelao;
     private FrmTelao frame;
     private String dirFotosEnviadas = "FotosEnviadas/";
     private String dirFotosFila = "FotosFila/";
@@ -89,7 +89,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         criarDiretorios();
 
         String[] colunasBaixada = new String[]{"Foto", "Descrição"};
-        modelTblBaixadas = new DefaultTableModel(null, colunasBaixada) {
+        modelTblBaixadas = new MyDefaultTableModel(null, colunasBaixada) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -137,6 +137,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                         lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
                         modelTblBaixadas.removeRow(row);
                         modelTblImpressas.addRow(obj);
+                        loadFotosImpressas();
                         break; 
                        
                     case "Telão":
@@ -149,7 +150,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                         qtdeTelao++;
                         modelTblTelao.addRow(obj);
                         sendToPrint(obj[1].toString());
-                        obj[2] = "IMPRESA";
+                        obj[2] = "IMPRIMINDO";
                         modelTblImpressas.addRow(obj);
                         lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
                         lbQtdTelao.setText(String.valueOf(qtdeTelao));
@@ -173,7 +174,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         modelTblTelao = new MyDefaultTableModel(null, colunasTelao);
         tabelaFotosTelao.setModel(modelTblTelao);
         tabelaFotosTelao.getColumnModel().getColumn(0).setPreferredWidth(80);
-        tabelaFotosTelao.getColumnModel().getColumn(1).setPreferredWidth(300);
+        tabelaFotosTelao.getColumnModel().getColumn(1).setPreferredWidth(280);
         
          tabelaFotosTelao.addMouseListener(new MouseAdapter() {
             @Override
@@ -209,7 +210,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                     int dialogResult = JOptionPane.showConfirmDialog(null, "Deseja realmente reimprimir esta foto?", "Atenção", JOptionPane.YES_NO_OPTION);
                     if (dialogResult == JOptionPane.YES_OPTION) {
                         sendToPrint(tabelaFotosImpressas.getValueAt(row, 1).toString());
-                        tabelaFotosImpressas.setValueAt("IMPRIMINDO", row, 2);
+                        tabelaFotosImpressas.setValueAt("RE-IMPRIMINDO", row, 2);
                     }
                 }
             }
@@ -331,7 +332,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
             lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
         } catch (Exception e) {
-           
+           Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, e);
         }
     }
 
@@ -377,6 +378,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
             lbQtdImpressas.setText(String.valueOf(qtdeImpressas)+" / "+totFotos);
         } catch (Exception e) {
+            Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, e);
         }
     }
 
@@ -453,25 +455,11 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 photo.nome_evento = lblNomeEvento.getText();
                 photo.image_evento = evento.getLogo_event();
                 photo.createImageFromTemplate(arquivo, dirFotosFila + hashtag + "/", evento.getId_print_template());
-
                 printer.selecionaImpressoras(comboImpressoras.getSelectedItem().toString());
-               
-                //stream = new FileInputStream(fileName);
-                //File f = new File(fileName);
-                //int size = (int) f.length();
-                //byte[] file = new byte[size];
-                //stream.read(file);
-               
-               // fila.printer = imp;
-               // fila.fileName = photo.fotoFromTemplate.getPath();
-               // fila.table = modelTblImpressas;
-               // fila.run();
                 printer.imprime(photo.fotoFromTemplate.getPath());
-              // printerprintImagesInDirectory     
-               
             }
         } catch (IOException ex) {
-              JOptionPane.showMessageDialog(null, ex+ "Erro ao enviar para impressão");
+            Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, "Erro ao enviar para impressão", ex);
         }
     }
 
@@ -958,26 +946,27 @@ public class FrmPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowActivated
 
     private void btnStartStopEventoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartStopEventoActionPerformed
-        if (btnStartStopEvento.getText().equals("Iniciar Evento")) {
-            if (preparaEvento()) {
-                buscaFotosInstagram();
-                loadFotosBaixadas();
-                loadFotosAImprimir();
-                loadFotosImpressas();
-                loadFotosTelao();
-            }
-        } else if (btnStartStopEvento.getText().equals("Parar Evento")) {
-            int dialogResult = JOptionPane.showConfirmDialog(null, "Deseja realmente parar o evento?", "Atenção", JOptionPane.YES_NO_OPTION);
-            if (dialogResult == JOptionPane.YES_OPTION) {
-                File dirTelao = new File(dirFotosTelao + hashtag + "/"); 
-                File dirImpresa = new File(dirFotosImpressas + hashtag + "/"); 
-                File dirFila = new File(dirFotosFila + hashtag + "/"); 
-                
-                paraEvento();
-                deleteDiretorio(dirTelao);
-                deleteDiretorio(dirFila);
-                deleteDiretorio(dirImpresa);
-            }
+        switch (btnStartStopEvento.getText()) {
+            case "Iniciar Evento":
+                if (preparaEvento()) {
+                    buscaFotosInstagram();
+                    loadFotosBaixadas();
+                    loadFotosAImprimir();
+                    loadFotosImpressas();
+                    loadFotosTelao();
+                }   break;
+            case "Parar Evento":
+                int dialogResult = JOptionPane.showConfirmDialog(null, "Deseja realmente parar o evento?", "Atenção", JOptionPane.YES_NO_OPTION);
+                if (dialogResult == JOptionPane.YES_OPTION) {
+                    File dirTelao = new File(dirFotosTelao + hashtag + "/");
+                    File dirImpresa = new File(dirFotosImpressas + hashtag + "/");
+                    File dirFila = new File(dirFotosFila + hashtag + "/");
+                    
+                    paraEvento();
+                    deleteDiretorio(dirTelao);
+                    deleteDiretorio(dirFila);
+                    deleteDiretorio(dirImpresa);
+            }   break;
         }
     }//GEN-LAST:event_btnStartStopEventoActionPerformed
 
@@ -1013,11 +1002,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
             temTelao = false;
         }
 
-        if (tblEvento.getValueAt(row, 4).toString().equals("Sim")) {
-            temImpressao = true;
-        } else {
-            temImpressao = false;
-        }
+        temImpressao = tblEvento.getValueAt(row, 4).toString().equals("Sim");
         
         totFotos = Integer.parseInt(tblEvento.getValueAt(row, 7).toString());
         lbQtdImpressas.setText(tblEvento.getValueAt(row, 7).toString());
@@ -1029,11 +1014,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         lblNomeEvento.setText(tblEvento.getValueAt(row, 1).toString());
         hashtag = tblEvento.getValueAt(row, 2).toString();
 
-        if (tblEvento.getValueAt(row, 6).toString().equals("Sim")) {
-            automatico = true;
-        } else {
-            automatico = false;
-        }
+        automatico = tblEvento.getValueAt(row, 6).toString().equals("Sim");
 
         File dirEnviadas = new File(dirFotosEnviadas + hashtag + "/");
         if (dirEnviadas.exists() == false) {
@@ -1129,31 +1110,38 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
     private void btnExibirTelaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExibirTelaoActionPerformed
         try {
-            setupFullScreen();
+            if(tabelaFotosTelao.getRowCount() > 0 ){
+                loadFotosTelao();
+                setupFullScreen();
+            }else{
+              JOptionPane.showMessageDialog(null, "ATENÇÃO! Não existe fotos adicionadas para o telão!");
+            }
         } catch (Exception e) {
-            JOptionPane.showConfirmDialog(null, e.getMessage());
+            Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, "Problemas ao apresentar telão, Erro: ", e);
         }
     }//GEN-LAST:event_btnExibirTelaoActionPerformed
 
     private void btnAutomaticoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAutomaticoActionPerformed
-        if (btnAutomatico.getText().equals("Iniciar Automático")) {
-            btnAutomatico.setText("Parar Automático");
-            btnAutomatico.setBackground(Color.ORANGE);
-            btnAutomatico.setForeground(Color.BLACK);
-            btnAutomatico.setOpaque(true);
-            btnAutomatico.setBorderPainted(false);
-            startPrint();
-        } else if (btnAutomatico.getText().equals("Parar Automático")) {
-            int dialogResult = JOptionPane.showConfirmDialog(null, "Deseja realmente parar a ação automática?", "Atenção", JOptionPane.YES_NO_OPTION);
-            if (dialogResult == JOptionPane.YES_OPTION) {
-                btnAutomatico.setText("Iniciar Automático");
-                btnAutomatico.setBackground(new Color(238, 238, 238));
+        switch (btnAutomatico.getText()) {
+            case "Iniciar Automático":
+                btnAutomatico.setText("Parar Automático");
+                btnAutomatico.setBackground(Color.ORANGE);
                 btnAutomatico.setForeground(Color.BLACK);
-                btnAutomatico.setOpaque(false);
-                btnAutomatico.setBorderPainted(true);
-                        
-                stopPrint();
-            }
+                btnAutomatico.setOpaque(true);
+                btnAutomatico.setBorderPainted(false);
+                startPrint();
+                break;
+            case "Parar Automático":
+                int dialogResult = JOptionPane.showConfirmDialog(null, "Deseja realmente parar a ação automática?", "Atenção", JOptionPane.YES_NO_OPTION);
+                if (dialogResult == JOptionPane.YES_OPTION) {
+                    btnAutomatico.setText("Iniciar Automático");
+                    btnAutomatico.setBackground(new Color(238, 238, 238));
+                    btnAutomatico.setForeground(Color.BLACK);
+                    btnAutomatico.setOpaque(false);
+                    btnAutomatico.setBorderPainted(true);
+                    
+                    stopPrint();
+                }   break;
         }
     }//GEN-LAST:event_btnAutomaticoActionPerformed
 
