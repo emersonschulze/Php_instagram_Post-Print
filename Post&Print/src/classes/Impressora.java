@@ -1,9 +1,12 @@
 package classes;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.print.Doc;
 import javax.print.DocFlavor;
 import javax.print.DocPrintJob;
@@ -15,6 +18,7 @@ import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 import javax.print.attribute.standard.Copies;
 import javax.swing.JOptionPane;
+import photoparty.FrmPrincipal;
 
 /**
  *
@@ -24,6 +28,7 @@ public class Impressora {
     
    private static PrintService impressora;
    private List<String> todasImpressoras;
+   private Boolean retornaErro;
    
   public List<String> detectaImpressoras() {
         try {
@@ -60,32 +65,31 @@ public class Impressora {
                 }     
             }  
         } catch (Exception e) {  
-           JOptionPane.showMessageDialog(null, "Seleção de impressora com problemas"  +  e);
+           JOptionPane.showMessageDialog(null, "Seleção de impressora com problemas: "  +  e.getMessage());
         }  
     }  
     
   public boolean imprime(String texto) {  
         if (impressora == null) {  
-            JOptionPane.showMessageDialog(null, "Nenhuma impressora foi encontrada. Instale uma impressora padrão \r\n e reinicie o programa."); 
+            JOptionPane.showMessageDialog(null, "Nenhuma impressora foi encontrada. Instale uma impressora padrão e reinicie o programa."); 
         } else {  
-                try{
-                  PrintRequestAttributeSet pras = new HashPrintRequestAttributeSet();
-                  pras.add(new Copies(1));
-                  final DocPrintJob jobb = impressora.createPrintJob();
-               
-                    try (FileInputStream fin = new FileInputStream(texto)) {
-                        Doc doc = new SimpleDoc(fin, DocFlavor.INPUT_STREAM.JPEG, null);
-                        
-                        jobb.print(doc, pras);
-                    }
-            return true;  
-    
-           } catch (IOException | PrintException e) {  
-               JOptionPane.showMessageDialog(null, "Algo de errado na impressão"  +  e);
-           }
-         }
+            try{
+                PrintRequestAttributeSet pras = new HashPrintRequestAttributeSet();
+                pras.add(new Copies(1));
+                final DocPrintJob jobb = impressora.createPrintJob();
+
+                try (FileInputStream fin = new FileInputStream(texto)) {
+                    Doc doc = new SimpleDoc(fin, DocFlavor.INPUT_STREAM.JPEG, null);
+                    jobb.print(doc, pras);
+                } catch (IOException e) {  
+                    Logger.getLogger(Impressora.class.getName()).log(Level.SEVERE, "Impressão foi cancelada ou a impressora retornou o erro: ",  e.getMessage());
+                }
+                return true;  
+            } catch (PrintException e) {  
+                Logger.getLogger(Impressora.class.getName()).log(Level.SEVERE, "Impressão foi cancelada ou a impressora retornou o erro: ",  e.getMessage());
+            }
+        }
        return false;
     }
-    
 }
    
