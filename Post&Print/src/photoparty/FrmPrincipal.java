@@ -52,7 +52,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private MyDefaultTableModel modelTblTelao;
     private FrmTelao frame;
     private String dirFotosEnviadas = "FotosEnviadas/";
-  //  private String dirFotosFila = "FotosFila/";
     private String dirFotosImpressas = "FotosImpressas/";
     private String dirFotosTelao = "FotosTelao/";
     private List<String> listaFotosBaixadas;
@@ -61,7 +60,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private boolean automatico = false;
     private boolean temTelao = false;
     private boolean temImpressao = false;
-    private boolean telao = true;
     private int qtdeBaixadas = 0;
     private int qtdeTelao = 0;
     private int qtdeImpressas = 0;
@@ -78,7 +76,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
     public FrmPrincipal() {
         initComponents();
-    
         popularCombo();
       
         this.setIconImage(new ImageIcon(getClass().getClassLoader().getResource("Assets/logo_postprint.png")).getImage());
@@ -149,6 +146,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                                 lbQtdTelao.setText(String.valueOf(qtdeTelao));
                                 listaFotosTelao.add(obj[1].toString());
                                 break;
+     
                             case "Imprimir/Telão":
                                 qtdeImpressas++;
                                 qtdeTelao++;
@@ -162,7 +160,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
                                 modelTblBaixadas.removeRow(row);
                                 listaFotosImpressas.add(obj[1].toString());
                                 listaFotosTelao.add(obj[1].toString());
-                             
                                 break;
                                 
                             case "Remover":
@@ -171,10 +168,8 @@ public class FrmPrincipal extends javax.swing.JFrame {
                                 
                             default:
                                 JOptionPane.showMessageDialog(null, "Opção não selecionada", "Error", JOptionPane.ERROR_MESSAGE);
-                                
                         }
 
-  //                      loadFotosAImprimir();
                         loadFotosImpressas();
                     } catch (IOException ex) {
                         Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
@@ -239,7 +234,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
                     e.consume();
                     int dialogResult = JOptionPane.showConfirmDialog(null, "Deseja realmente reimprimir esta foto?", "Atenção", JOptionPane.YES_NO_OPTION);
                     if (dialogResult == JOptionPane.YES_OPTION) {
-                        telao = false;
                         sendToPrint(tabelaFotosImpressas.getValueAt(row, 1).toString());
                         tabelaFotosImpressas.setValueAt("RE-IMPRIMINDO", row, 2);
                     }
@@ -313,8 +307,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                        
                         }catch (Exception ex) {
                                 Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-                                
-                            }
+                        }
                     }
                 }
             }
@@ -366,53 +359,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
            Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, e);
         }
     }
-/*
-    private void loadFotosAImprimir() {
-        try {
-            File dir = new File(dirFotosFila + hashtag + "/");
-            if (dir.isDirectory()) {
-                File arquivos[] = dir.listFiles();
-               
-                for (File arquivo : arquivos) {
-                    if (arquivo.getName().indexOf(".jpg") > 0 || arquivo.getName().indexOf(".JPG") > 0) {
-                        if (listaFotosImpressas.contains(arquivo.getName()) == false) {
-                           ImageIcon image;
-                           try {
-                                image = new ImageIcon(arquivo.getAbsolutePath());
-                                Image scaledImage = image.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
-                                image.setImage(scaledImage);
-                                Object[] obj = new Object[3];
-                                obj[0] = image;
-                                obj[1] = arquivo.getName();
-                                obj[2] = "IMPRIMIR";
-                                boolean existe = false;
-                                int tot_impressa = modelTblImpressas.getRowCount();
-                                for (int x = 0; x < tot_impressa; x++) {
-                                    if (modelTblImpressas.getValueAt(x, 1).equals(obj[1].toString())) {
-                                        existe = true;
-                                    }
-                                }
-                                if (existe == false) {
-                                    qtdeImpressas++;
-                                    modelTblImpressas.addRow(obj);
-                                    listaFotosImpressas.add(arquivo.getName());
-                                    lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
-                                }
-                                
-                            }catch (Exception ex) {
-                                Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        }
-                    }
-                }
-            }
 
-            lbQtdImpressas.setText(String.valueOf(qtdeImpressas)+" / "+totFotos);
-        } catch (Exception e) {
-            Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, e);
-        }
-    }
-*/
     private void buscaFotosInstagram() {
         ProcessoThread thread = new ProcessoThread();
         thread.action = "importFotos";
@@ -463,7 +410,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
         photo = criaImagemTemplate(nameFile, arquivo);
         printer.selecionaImpressoras(comboImpressoras.getSelectedItem().toString());
         printer.imprime(photo.fotoFromTemplate.getPath());
-                         
     }
 
     private void ajustaFotoParaTelao(String nameFile) throws IOException {
@@ -486,7 +432,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
         photo = getPhoto(nameFile);
         photo.nome_evento = lblNomeEvento.getText();
         photo.image_evento = evento.getLogo_event();
-      //  photo.createImageFromTemplate(arquivo, dirFotosFila + hashtag + "/", evento.getId_print_template());
         photo.createImageFromTemplate(arquivo, dirFotosImpressas + hashtag + "/", evento.getId_print_template());
         return photo;
     }
@@ -502,7 +447,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
         @Override
         public void run() {
-
             if (printer.imprime(fileName)) {
                 qtdeImpressas++;
                 if (qtdeImpressas == totFotos) {
@@ -966,7 +910,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAddEventoActionPerformed
 
     private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
-       
         this.loadEventos();
         if (frame != null) {
             frame.toFront();
@@ -979,7 +922,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 if (preparaEvento()) {
                     buscaFotosInstagram();
                     loadFotosBaixadas();
-//                    loadFotosAImprimir();
                     loadFotosImpressas();
                     loadFotosTelao();
                 }   break;
@@ -1035,7 +977,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
         btnStartStopEvento.setBorderPainted(false);
         lblNomeEvento.setText(tblEvento.getValueAt(row, 1).toString());
         hashtag = tblEvento.getValueAt(row, 2).toString();
-
         automatico = tblEvento.getValueAt(row, 6).toString().equals("Sim");
 
         File dirEnviadas = new File(dirFotosEnviadas + hashtag + "/");
@@ -1047,11 +988,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
         if (dirImpressas.exists() == false) {
             dirImpressas.mkdir();
         }
-
-       // File dirFila = new File(dirFotosFila + hashtag + "/");
-       // if (dirFila.exists() == false) {
-       //     dirFila.mkdir();
-       // }
 
         if (temTelao) {
             File dirTelao = new File(dirFotosTelao + hashtag + "/");
@@ -1127,7 +1063,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
     }
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-
     }//GEN-LAST:event_formWindowOpened
 
     private void btnExibirTelaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExibirTelaoActionPerformed
@@ -1181,7 +1116,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnRmEventoActionPerformed
 
     private void tabelaFotosTelaoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelaFotosTelaoMouseClicked
-
     }//GEN-LAST:event_tabelaFotosTelaoMouseClicked
 
      private void startPrint() {
@@ -1234,7 +1168,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
             timerPrinter.start();
 
             SLEEP = false;
-          
         }
     }
     
@@ -1299,7 +1232,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
                     }
                 }
             });
-            
             createFrameAtLocation(p2, frame);
         });
     }
@@ -1326,11 +1258,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
         if (dirImpressas.exists() == false) {
             dirImpressas.mkdir();
         }
-        
-     //   File dirFila = new File(dirFotosFila);
-     //   if (dirFila.exists() == false) {
-      //      dirFila.mkdir();
-      //  }
         
         File dirTelao = new File(dirFotosTelao);
         if (dirTelao.exists() == false) {
