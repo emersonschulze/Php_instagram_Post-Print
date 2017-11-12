@@ -130,13 +130,10 @@ public class FrmPrincipal extends javax.swing.JFrame {
                         
                         switch (questao) {
                             case "Imprimir":
-                                obj[2] = "IMPRESSA";
+                                obj[2] = "IMPRIMINDO";
                                 sendToPrint(obj[1].toString());
-                                qtdeImpressas++;
-                                lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
+                                loadFotosImpressas();
                                 modelTblBaixadas.removeRow(row);
-                                modelTblImpressas.addRow(obj);
-                                listaFotosImpressas.add(obj[1].toString());
                                break;
                                 
                             case "Telão":
@@ -148,17 +145,14 @@ public class FrmPrincipal extends javax.swing.JFrame {
                                 break;
      
                             case "Imprimir/Telão":
-                                qtdeImpressas++;
                                 qtdeTelao++;
                                 modelTblTelao.addRow(obj);
                                 sendToPrint(obj[1].toString());
                                 obj[2] = "IMPRESSA/TELAO";
                                 ajustaFotoParaTelao(obj[1].toString());
-                                modelTblImpressas.addRow(obj);
-                                lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
+                                loadFotosImpressas();
                                 lbQtdTelao.setText(String.valueOf(qtdeTelao));
                                 modelTblBaixadas.removeRow(row);
-                                listaFotosImpressas.add(obj[1].toString());
                                 listaFotosTelao.add(obj[1].toString());
                                 break;
                                 
@@ -205,15 +199,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 }
             }
 
-            private void deleteFotoDiretorio(File diretorio, String obj) {
-                if (diretorio.isDirectory()) {  
-                    final File[] listaFotos = diretorio.listFiles();  
-                    for (File foto : listaFotos) {
-                        if (foto.toString().endsWith(obj))
-                            foto.delete();
-                    }
-                }
-            }
+          
                
        });
 
@@ -265,6 +251,15 @@ public class FrmPrincipal extends javax.swing.JFrame {
     }
 
     
+    public void deleteFotoDiretorio(File diretorio, String obj) {
+        if (diretorio.isDirectory()) {  
+            final File[] listaFotos = diretorio.listFiles();  
+            for (File foto : listaFotos) {
+                if (foto.toString().endsWith(obj))
+                    foto.delete();
+            }
+        }
+    }
 
     private void loadFotosTelao() {
         File dir = new File(dirFotosTelao + hashtag + "/");
@@ -497,7 +492,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                                     lbQtdBaixadas.setText(String.valueOf(qtdeBaixadas));
                                 }
                             }catch (Exception ex) {
-                                Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                                Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, "Erro ao carregar fotos baixadas: ", ex.getMessage());
                             }
                         }
                     }
@@ -1081,26 +1076,34 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private void btnAutomaticoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAutomaticoActionPerformed
         switch (btnAutomatico.getText()) {
             case "Iniciar Automático":
-                btnAutomatico.setText("Parar Automático");
-                btnAutomatico.setBackground(Color.ORANGE);
-                btnAutomatico.setForeground(Color.BLACK);
-                btnAutomatico.setOpaque(true);
-                btnAutomatico.setBorderPainted(false);
-                startPrint();
+                iniciarEventoAutomatico();
                 break;
             case "Parar Automático":
                 int dialogResult = JOptionPane.showConfirmDialog(null, "Deseja realmente parar a ação automática?", "Atenção", JOptionPane.YES_NO_OPTION);
                 if (dialogResult == JOptionPane.YES_OPTION) {
-                    btnAutomatico.setText("Iniciar Automático");
-                    btnAutomatico.setBackground(new Color(238, 238, 238));
-                    btnAutomatico.setForeground(Color.BLACK);
-                    btnAutomatico.setOpaque(false);
-                    btnAutomatico.setBorderPainted(true);
-                    
-                    stopPrint();
-                }   break;
+                    pararEventoAutomatico();
+                }  
+                break;
         }
     }//GEN-LAST:event_btnAutomaticoActionPerformed
+
+    private void iniciarEventoAutomatico() {
+        btnAutomatico.setText("Parar Automático");
+        btnAutomatico.setBackground(Color.ORANGE);
+        btnAutomatico.setForeground(Color.BLACK);
+        btnAutomatico.setOpaque(true);
+        btnAutomatico.setBorderPainted(false);
+        startPrint();
+    }
+
+    public void pararEventoAutomatico() {
+        btnAutomatico.setText("Iniciar Automático");
+        btnAutomatico.setBackground(new Color(238, 238, 238));
+        btnAutomatico.setForeground(Color.BLACK);
+        btnAutomatico.setOpaque(false);
+        btnAutomatico.setBorderPainted(true);
+        stopPrint();
+    }
 
     private void btnRmEventoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRmEventoActionPerformed
         if (tblEvento.getSelectedRow() < 0) {
@@ -1120,24 +1123,22 @@ public class FrmPrincipal extends javax.swing.JFrame {
 
      private void startPrint() {
         if (automatico) {
+            Impressora impressora = new Impressora();
             ActionListener action2 = (@SuppressWarnings("unused") java.awt.event.ActionEvent e) -> {
-
                 (new Thread() {
                     @Override
                     public void run() {
                         try {
-                            Thread.sleep(5000);
+                            Thread.sleep(2000); //imprime a cada 8 segundos
                             if (tabelaFotosBaixadas.getRowCount() > 0) {
                                 final Object[] obj = new Object[3];
                                 obj[0] = tabelaFotosBaixadas.getValueAt(0, 0);
                                 obj[1] = tabelaFotosBaixadas.getValueAt(0, 1).toString();
+                               
                                 if (temImpressao == true) {
                                     obj[2] = "IMPRESSA";
                                     sendToPrint(obj[1].toString());
-                                    qtdeImpressas++;
-                                    lbQtdImpressas.setText(String.valueOf(qtdeImpressas) + " / " + totFotos);
-                                    modelTblImpressas.addRow(obj);
-                                    listaFotosImpressas.add(obj[1].toString());
+                                    loadFotosImpressas();
                                 } 
                                 if (temTelao == true) {
                                     try {
@@ -1153,13 +1154,13 @@ public class FrmPrincipal extends javax.swing.JFrame {
                                     modelTblBaixadas.removeRow(0);
                             }
                         } catch (InterruptedException ex) {
-                            Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, "Erro nas ações automáricas, erro: ", ex.getMessage());
                         }
                     }
                 }).start();
             };
 
-            timerAutomatico = new Timer(10000, action2);
+            timerAutomatico = new Timer(8000, action2);
             timerAutomatico.start();
       
             ActionListener action3 = (@SuppressWarnings("unused") java.awt.event.ActionEvent e) -> {
@@ -1211,7 +1212,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
             frame.hashtag = hashtag;
             frame.dirFotosTelao = dirFotosTelao;
             frame.pathLogoEvento = evento.getLogo_event();
-            
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
             
@@ -1277,7 +1277,6 @@ public class FrmPrincipal extends javax.swing.JFrame {
        }  
        return dir.delete();  
    }  
-   
 
     class ProcessoThread extends Thread {
         public String action;
