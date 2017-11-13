@@ -82,7 +82,7 @@ class Event{
 						$sql = "update user set serial = '".$serial."',name_machine = '".$_POST['name_machine']."' where id_user = ".$res['id_user'];
 						$result = Connection::query($sql);
 						if(Connection::getAffecteds() > 0){
-							/*$link = "http://postprint.lin3.com.br/WSPhotoParty/Event/activeLicense?key=".$serial;
+							/*$link = "http://postprint.com.br/WSPhotoParty/Event/activeLicense?key=".$serial;
 							$mail = new Email();
 							$mail->setUserName(EMAIL_CONTACT);
 							$mail->setPassword(EMAIL_PASSWORD);
