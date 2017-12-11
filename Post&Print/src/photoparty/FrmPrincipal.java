@@ -5,8 +5,10 @@ import classes.Impressora;
 import classes.Instagram;
 import classes.MyDefaultTableModel;
 import classes.Photo;
+import classes.Usuario;
 import classes.Webservice;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.EventQueue;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -24,6 +26,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,9 +44,12 @@ import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class FrmPrincipal extends javax.swing.JFrame {
     private Event evento;
+    private Usuario usuario;
     private String hashtag;
     private Timer timer;
     private Timer timerAutomatico;
@@ -71,21 +78,25 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private Timer timerSleep;
     private boolean SLEEP = false;
     public FilaPrinter fila;
-    
+    private boolean naoInformado = true;
+    private String token = "";
+      
     public static final String[] acao = { "Imprimir/Telão", "Imprimir", "Telão", "Remover" };
 
     public FrmPrincipal() {
         initComponents();
+   
+      
         popularCombo();
       
         this.setIconImage(new ImageIcon(getClass().getClassLoader().getResource("Assets/logo_postprint.png")).getImage());
         evento = new Event();
+        usuario = new Usuario();
         listaFotosBaixadas = new ArrayList<>();
         listaFotosImpressas = new ArrayList<>();
         listaFotosTelao = new ArrayList<>();
-       
         criarDiretorios();
-
+        
         String[] colunasBaixada = new String[]{"Foto", "Descrição"};
         modelTblBaixadas = new MyDefaultTableModel(null, colunasBaixada) {
             @Override
@@ -250,6 +261,25 @@ public class FrmPrincipal extends javax.swing.JFrame {
         gd.setFullScreenWindow(null);
     }
 
+    private void setInformacaoUsuario() {
+        String stringURL = "https://postprint.com.br/login.php";
+        try {
+            URI url = new URI(stringURL);
+            openWebpage(url);
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        JSONArray listaUsuario = evento.listaUsuario();
+        JSONArray data = listaUsuario.getJSONObject(0).getJSONArray("result");
+        JSONObject json = data.getJSONObject(0);
+        final String nome = json.getString("username");
+        token = json.getString("insta_token"); 
+           
+        jLogado.setText("Usuário Logado: " + nome);
+        naoInformado = false;
+    }
+
     
     public void deleteFotoDiretorio(File diretorio, String obj) {
         if (diretorio.isDirectory()) {  
@@ -397,7 +427,18 @@ public class FrmPrincipal extends javax.swing.JFrame {
         Webservice ws = new Webservice();
         return ws.getInfoPhoto(info[1].replace(".jpg", ""));
     }
-
+    
+    public static void openWebpage(URI uri) {
+    final Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+        if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+            try {
+                desktop.browse(uri);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+ 
     private void sendToPrint(String nameFile) {
         Impressora printer = new Impressora();
         Photo photo;
@@ -548,6 +589,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         lblNomeEvento = new javax.swing.JLabel();
         btnAutomatico = new javax.swing.JButton();
         btnRmEvento = new javax.swing.JButton();
+        jLogado = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Post&Print");
@@ -568,14 +610,31 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 {null, null, null, null},
                 {null, null, null, null},
                 {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
                 {null, null, null, null}
             },
             new String [] {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tblEvento.setCellSelectionEnabled(true);
         tblEvento.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tblEvento.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(tblEvento);
+        tblEvento.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 
         btnAddEvento.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Assets/add_event.png"))); // NOI18N
         btnAddEvento.setText("Adicionar Evento");
@@ -616,12 +675,21 @@ public class FrmPrincipal extends javax.swing.JFrame {
             new String [] {
                 "Title 1", "Title 2"
             }
-        ));
-        tabelaFotosBaixadas.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         tabelaFotosBaixadas.setCellSelectionEnabled(true);
         tabelaFotosBaixadas.setRowHeight(80);
         tabelaFotosBaixadas.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        tabelaFotosBaixadas.getTableHeader().setReorderingAllowed(false);
         jScrollPane3.setViewportView(tabelaFotosBaixadas);
+        tabelaFotosBaixadas.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 
         jLabel5.setText("Total de fotos baixadas:");
 
@@ -645,11 +713,12 @@ public class FrmPrincipal extends javax.swing.JFrame {
                     .add(jLabel5)
                     .add(lbQtdBaixadas))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 281, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 281, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         labelImpresa.setBorder(javax.swing.BorderFactory.createTitledBorder("Fotos Impressas"));
+        labelImpresa.setPreferredSize(new java.awt.Dimension(442, 335));
 
         tabelaFotosImpressas.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -667,8 +736,15 @@ public class FrmPrincipal extends javax.swing.JFrame {
             new String [] {
                 "Title 1", "Title 2", "Title 3"
             }
-        ));
-        tabelaFotosImpressas.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         tabelaFotosImpressas.setRowHeight(80);
         tabelaFotosImpressas.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane4.setViewportView(tabelaFotosImpressas);
@@ -686,7 +762,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(lbQtdImpressas, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .add(jScrollPane4)
+            .add(jScrollPane4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
         );
         labelImpresaLayout.setVerticalGroup(
             labelImpresaLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -695,12 +771,12 @@ public class FrmPrincipal extends javax.swing.JFrame {
                     .add(jLabel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 15, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(lbQtdImpressas))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 282, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(4, 4, 4))
+                .add(jScrollPane4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 275, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         labelTelao.setBorder(javax.swing.BorderFactory.createTitledBorder("Fotos Telão"));
-        labelTelao.setPreferredSize(new java.awt.Dimension(430, 330));
+        labelTelao.setPreferredSize(new java.awt.Dimension(442, 335));
 
         jLabel7.setText("Total de fotos no telão:");
 
@@ -722,8 +798,15 @@ public class FrmPrincipal extends javax.swing.JFrame {
             new String [] {
                 "Title 1", "Title 2"
             }
-        ));
-        tabelaFotosTelao.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         tabelaFotosTelao.setRowHeight(80);
         tabelaFotosTelao.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tabelaFotosTelao.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -742,8 +825,8 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 .add(jLabel7)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(lbQtdTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(151, Short.MAX_VALUE))
-            .add(jScrollPane6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .add(jScrollPane6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
         );
         labelTelaoLayout.setVerticalGroup(
             labelTelaoLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -752,7 +835,8 @@ public class FrmPrincipal extends javax.swing.JFrame {
                     .add(jLabel7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 15, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(lbQtdTelao))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE))
+                .add(jScrollPane6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         org.jdesktop.layout.GroupLayout pnlImpressoesLayout = new org.jdesktop.layout.GroupLayout(pnlImpressoes);
@@ -764,17 +848,21 @@ public class FrmPrincipal extends javax.swing.JFrame {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(labelImpresa, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(labelTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 383, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(labelTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
         pnlImpressoesLayout.setVerticalGroup(
             pnlImpressoesLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(pnlImpressoesLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(pnlImpressoesLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(labelTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(labelBaixadas, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 330, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(3, 3, 3))
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, labelImpresa, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(pnlImpressoesLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                    .add(pnlImpressoesLayout.createSequentialGroup()
+                        .add(labelBaixadas, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(3, 3, 3))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, pnlImpressoesLayout.createSequentialGroup()
+                        .add(pnlImpressoesLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(labelImpresa, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 330, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(labelTelao, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 333, Short.MAX_VALUE))
+                        .add(5, 5, 5))))
         );
 
         labelTelao.getAccessibleContext().setAccessibleName("Fotos Telao");
@@ -823,51 +911,61 @@ public class FrmPrincipal extends javax.swing.JFrame {
             }
         });
 
+        jLogado.setText("Usuário Logado:");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(10, 10, 10)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
                         .add(10, 10, 10)
-                        .add(jLabel2)
-                        .add(9, 9, 9)
-                        .add(lblNomeEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 624, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(btnStartStopEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 166, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(btnExibirTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 161, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(btnAutomatico, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 174, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jLabel3)
-                            .add(jLabel4)
-                            .add(jPanel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 220, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(10, 10, 10)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(layout.createSequentialGroup()
-                                .add(jLabel1)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .add(btnRmEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 180, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(10, 10, 10)
+                                .add(jLabel2)
+                                .add(9, 9, 9)
+                                .add(lblNomeEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 624, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 122, Short.MAX_VALUE)
+                                .add(btnStartStopEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 166, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(btnAddEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 163, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(jScrollPane1))))
+                                .add(btnExibirTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 161, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(btnAutomatico, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 174, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(layout.createSequentialGroup()
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                                    .add(jLabel4)
+                                    .add(jPanel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)
+                                    .add(jLabel3)
+                                    .add(jLogado, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .add(10, 10, 10)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(layout.createSequentialGroup()
+                                        .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 692, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .add(btnRmEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 180, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(btnAddEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 163, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                    .add(jScrollPane1)))))
+                    .add(pnlImpressoes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap())
-            .add(pnlImpressoes, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel1)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(btnAddEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(btnRmEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .add(6, 6, 6)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(jLabel1)
+                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                .add(btnAddEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(btnRmEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .add(6, 6, 6))
+                    .add(layout.createSequentialGroup()
+                        .add(jLogado, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 29, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
                         .add(jLabel3)
@@ -890,8 +988,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
                             .add(btnExibirTelao, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(btnStartStopEvento, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 43, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(pnlImpressoes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 360, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())))
+                        .add(pnlImpressoes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 371, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
         );
 
         pack();
@@ -909,6 +1006,10 @@ public class FrmPrincipal extends javax.swing.JFrame {
         if (frame != null) {
             frame.toFront();
         }
+         
+      if(naoInformado)
+            setInformacaoUsuario(); 
+        
     }//GEN-LAST:event_formWindowActivated
 
     private void btnStartStopEventoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartStopEventoActionPerformed
@@ -1004,6 +1105,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         btnStartStopEvento.setOpaque(false);
         btnStartStopEvento.setBorderPainted(true);
         lblNomeEvento.setText("Nome do Evento");
+        jLogado.setText("Usuário Logado: ");
         hashtag = null;
         automatico = false;
         tblEvento.setEnabled(true);
@@ -1310,6 +1412,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLogado;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;

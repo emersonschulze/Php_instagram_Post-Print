@@ -17,11 +17,11 @@ public class Event {
     private String active;
     private String qtde_fotos;
     private final Webservice ws;
-
+    
     public Event() {
         ws = new Webservice();
     }
-
+        
     public String toParams() {
         String params = "name=" + this.getName() + "&dt_event=" + this.getDt_event() + "&hashtag=" + this.getHashtag() + "&automatic=" + this.getAutomatic() + "&have_screen=" + this.getHave_screen() + "&have_print=" + this.getHave_print() + "&id_print_template=" + this.getId_print_template() + "&logo_event=" + this.getLogo_event() + "&active=" + this.getActive() + "&qtde_fotos=" + this.getQtde_fotos();
         if (this.getId_event() != null) {
@@ -76,6 +76,15 @@ public class Event {
 
     public String[][] listEvents() {
         return ws.getListEventos();
+    }
+    
+      public String[][] listUsers() {
+        return ws.getCarregaUser();
+    }
+      
+     public JSONArray listaUsuario() {
+        JSONArray array = ws.getListUser();
+        return array;
     }
 
     public boolean loadEvent(String id_event) {
