@@ -1,18 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package classes;
 
+import javax.swing.JOptionPane;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-/**
- *
- * @author cardial
- */
 public class Event {
- 
     private String id_event;
     private String name;
     private String dt_event;
@@ -24,63 +16,82 @@ public class Event {
     private String id_print_template;
     private String active;
     private String qtde_fotos;
+    private final Webservice ws;
     
-    private Webservice ws;
-    
-    
-    public Event(){
+    public Event() {
         ws = new Webservice();
     }
-    
-    
-    public String toParams(){
-        String params = "name="+this.getName()+"&dt_event="+this.getDt_event()+"&hashtag="+this.getHashtag()+"&automatic="+this.getAutomatic()+"&have_screen="+this.getHave_screen()+"&have_print="+this.getHave_print()+"&id_print_template="+this.getId_print_template()+"&active="+this.getActive()+"&logo_event="+this.getLogo_event()+"&qtde_fotos="+this.getQtde_fotos();
-        if(this.getId_event() != null){
-            params = "id_event="+this.getId_event()+"&"+params;
+        
+    public String toParams() {
+        String params = "name=" + this.getName() + "&dt_event=" + this.getDt_event() + "&hashtag=" + this.getHashtag() + "&automatic=" + this.getAutomatic() + "&have_screen=" + this.getHave_screen() + "&have_print=" + this.getHave_print() + "&id_print_template=" + this.getId_print_template() + "&logo_event=" + this.getLogo_event() + "&active=" + this.getActive() + "&qtde_fotos=" + this.getQtde_fotos();
+        if (this.getId_event() != null) {
+            params = "id_event=" + this.getId_event() + "&" + params;
         }
         return params;
     }
-    
-    public JSONArray listTemplate(){
+
+    public JSONArray listTemplate() {
         JSONArray array = ws.getListTemplate();
         return array;
     }
-    
-    public String insert(){
-        try{
-            if(ws.insertEvent(this)){
+
+    public String insert() {
+        try {
+            if (ws.insertEvent(this)) {
                 return "OK";
-            }else{
+            } else {
                 return ws.msgError;
             }
-        }catch(Exception e){
-            System.out.println("Insert event: "+e.getMessage());
+        } catch (Exception e) {
+             JOptionPane.showMessageDialog(null, "Erro ao inserir o evento! "+ e.getMessage());
         }
         return null;
     }
     
-    public String update(){
-        try{
-            if(ws.updateEvent(this)){
+    public String remove() {
+        try {
+            if (ws.removeEvent(this)) {
                 return "OK";
-            }else{
+            } else {
                 return ws.msgError;
             }
-        }catch(Exception e){
-            System.out.println("Insert event: "+e.getMessage());
+        } catch (Exception e) {
+             JOptionPane.showMessageDialog(null, "Erro ao remover o evento! "+ e.getMessage());
         }
         return null;
-    }
-    
-    public String[][] listEvents(){
-        return ws.getListEventos();
     }
 
-    public boolean loadEvent(String id_event){
+    public String update() {
+        try {
+            if (ws.updateEvent(this)) {
+                return "OK";
+            } else {
+                return ws.msgError;
+            }
+        } catch (Exception e) {
+             JOptionPane.showMessageDialog(null, "Erro ao atualizar o evento! "+ e.getMessage());
+        }
+        return null;
+    }
+
+    public String[][] listEvents() {
+        return ws.getListEventos();
+    }
+    
+      public String[][] listUsers() {
+        return ws.getCarregaUser();
+    }
+      
+     public JSONArray listaUsuario() {
+        JSONArray array = ws.getListUser();
+        return array;
+    }
+
+    public boolean loadEvent(String id_event) {
         JSONObject obj = ws.getEvento(id_event);
-        if(obj != null){
+        if (obj != null) {
             this.setId_event(id_event);
-            this.setName(obj.getString("name"));  
+            this.setName(obj.getString("name"));
             this.setDt_event(obj.getString("dt_event"));
             this.setHashtag(obj.getString("hashtag"));
             this.setAutomatic(obj.getString("automatic"));
@@ -95,17 +106,11 @@ public class Event {
         }
         return false;
     }
-    
-    /**
-     * @return the id_event
-     */
+
     public String getId_event() {
         return id_event;
     }
 
-    /**
-     * @param id_event the id_event to set
-     */
     public void setId_event(String id_event) {
         this.id_event = id_event;
     }
@@ -249,6 +254,5 @@ public class Event {
     public void setQtde_fotos(String qtde_fotos) {
         this.qtde_fotos = qtde_fotos;
     }
-    
-    
+
 }
