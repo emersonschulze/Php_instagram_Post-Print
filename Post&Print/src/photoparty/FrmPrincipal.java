@@ -278,6 +278,8 @@ public class FrmPrincipal extends javax.swing.JFrame {
            
         jLogado.setText("Usuário Logado: " + nome);
         naoInformado = false;
+        
+              
     }
 
     
@@ -436,6 +438,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            
         }
     }
  
